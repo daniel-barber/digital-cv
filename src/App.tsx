@@ -74,6 +74,7 @@ export default function App() {
 
     const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
     const appliedColorFallbacks: Array<{ name: string; previous: string }> = [];
+    const colorSpaceOverrides: Array<{ style: CSSStyleDeclaration; property: string; previous: string; priority: string }> = [];
 
     try {
       // Convert all external images to inline data URLs to bypass CORS
@@ -144,6 +145,66 @@ export default function App() {
         element.style.setProperty(name, fallback);
       }
 
+      const isStyleRule = (rule: CSSRule): rule is CSSStyleRule => {
+        return 'style' in rule;
+      };
+
+      const isGroupingRule = (rule: CSSRule): rule is CSSGroupingRule => {
+        return 'cssRules' in rule;
+      };
+
+      const patchColorSpace = (style: CSSStyleDeclaration) => {
+        for (let i = 0; i < style.length; i += 1) {
+          const property = style.item(i);
+          if (!property) continue;
+
+          const value = style.getPropertyValue(property);
+          if (!value) continue;
+
+          if (value.includes('oklab')) {
+            const priority = style.getPropertyPriority(property);
+            const replacement = value.replace(/in\s+oklab/gi, 'in srgb');
+            if (replacement !== value) {
+              colorSpaceOverrides.push({
+                style,
+                property,
+                previous: value,
+                priority,
+              });
+              style.setProperty(property, replacement, priority);
+            }
+          }
+        }
+      };
+
+      const traverseRules = (rules: CSSRuleList | undefined) => {
+        if (!rules) return;
+        for (let i = 0; i < rules.length; i += 1) {
+          const rule = rules[i];
+          if (!rule) continue;
+
+          if (isStyleRule(rule)) {
+            patchColorSpace(rule.style);
+          }
+
+          if (isGroupingRule(rule)) {
+            traverseRules(rule.cssRules);
+          }
+        }
+      };
+
+      for (const sheet of Array.from(document.styleSheets)) {
+        let rules: CSSRuleList | undefined;
+        try {
+          rules = sheet.cssRules;
+        } catch (sheetError) {
+          console.warn('Unable to access stylesheet rules for export fallback', sheetError);
+          continue;
+        }
+
+        traverseRules(rules);
+      }
+
       // Rasterize to PNG at 2x resolution for crisp output
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -195,6 +256,14 @@ export default function App() {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF: ' + (error as Error).message);
     } finally {
+      for (const { style, property, previous, priority } of colorSpaceOverrides.reverse()) {
+        if (previous) {
+          style.setProperty(property, previous, priority);
+        } else {
+          style.removeProperty(property);
+        }
+      }
+
       for (const { name, previous } of appliedColorFallbacks) {
         if (previous) {
           element.style.setProperty(name, previous);
