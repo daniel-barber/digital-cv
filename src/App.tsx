@@ -75,6 +75,7 @@ export default function App() {
     const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
     const appliedColorFallbacks: Array<{ name: string; previous: string }> = [];
     const colorSpaceOverrides: Array<{ style: CSSStyleDeclaration; property: string; previous: string; priority: string }> = [];
+    const styleSheetTextOverrides: Array<{ element: HTMLStyleElement; previous: string }> = [];
 
     try {
       // Convert all external images to inline data URLs to bypass CORS
@@ -161,9 +162,13 @@ export default function App() {
           const value = style.getPropertyValue(property);
           if (!value) continue;
 
-          if (value.includes('oklab')) {
+          if (value.match(/okl[ab]/i)) {
             const priority = style.getPropertyPriority(property);
-            const replacement = value.replace(/in\s+oklab/gi, 'in srgb');
+            const replacement = value
+              .replace(/in\s+oklab/gi, 'in srgb')
+              .replace(/in\s+oklch/gi, 'in srgb')
+              .replace(/oklab/gi, 'srgb')
+              .replace(/oklch/gi, 'srgb');
             if (replacement !== value) {
               colorSpaceOverrides.push({
                 style,
@@ -200,6 +205,21 @@ export default function App() {
         } catch (sheetError) {
           console.warn('Unable to access stylesheet rules for export fallback', sheetError);
           continue;
+        }
+
+        const ownerNode = sheet.ownerNode;
+        if (ownerNode instanceof HTMLStyleElement) {
+          const previous = ownerNode.textContent ?? '';
+          const replacement = previous
+            .replace(/in\s+oklab/gi, 'in srgb')
+            .replace(/in\s+oklch/gi, 'in srgb')
+            .replace(/oklab/gi, 'srgb')
+            .replace(/oklch/gi, 'srgb');
+
+          if (replacement !== previous) {
+            styleSheetTextOverrides.push({ element: ownerNode, previous });
+            ownerNode.textContent = replacement;
+          }
         }
 
         traverseRules(rules);
@@ -262,6 +282,10 @@ export default function App() {
         } else {
           style.removeProperty(property);
         }
+      }
+
+      for (const { element, previous } of styleSheetTextOverrides.reverse()) {
+        element.textContent = previous;
       }
 
       for (const { name, previous } of appliedColorFallbacks) {
