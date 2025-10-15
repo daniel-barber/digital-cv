@@ -13,6 +13,30 @@ import { PDFDocument } from 'pdf-lib';
 import profileImage from "./assets/daniel.jpg";
 
 
+const waitForImageReady = async (img: HTMLImageElement) => {
+  if (img.complete && img.naturalWidth !== 0) {
+    try {
+      if ('decode' in img) {
+        await img.decode();
+      }
+    } catch (error) {
+      console.warn('Image decode failed, continuing with fallback load listener', error);
+    }
+    return;
+  }
+
+  await new Promise<void>((resolve) => {
+    const handleComplete = () => {
+      img.removeEventListener('load', handleComplete);
+      img.removeEventListener('error', handleComplete);
+      resolve();
+    };
+
+    img.addEventListener('load', handleComplete, { once: true });
+    img.addEventListener('error', handleComplete, { once: true });
+  });
+};
+
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -30,20 +54,13 @@ export default function App() {
       const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
       
       for (const img of images) {
-        // Wait for image to load
-        if (!img.complete) {
-          await new Promise((resolve) => {
-            img.onload = () => resolve(null);
-            img.onerror = () => resolve(null);
-            setTimeout(() => resolve(null), 5000);
-          });
-        }
-        
+        await waitForImageReady(img);
+
         // Skip if already a data URL
         if (img.src.startsWith('data:')) {
           continue;
         }
-        
+
         // Fetch the image as a blob and convert to data URL
         try {
           const response = await fetch(img.src, { mode: 'cors' });
@@ -54,18 +71,19 @@ export default function App() {
             reader.onerror = reject;
             reader.readAsDataURL(blob);
           });
-          
+
           imageReplacements.push({
             img,
             originalSrc: img.src,
             dataUrl
           });
-          
+
           // Replace the src with data URL
           img.src = dataUrl;
+          await waitForImageReady(img);
         } catch (fetchError) {
           console.warn('Failed to fetch image, trying canvas method:', fetchError);
-          
+
           // Fallback: try canvas method (only works if image has CORS headers)
           try {
             const canvas = document.createElement('canvas');
@@ -75,14 +93,15 @@ export default function App() {
             if (ctx) {
               ctx.drawImage(img, 0, 0);
               const dataUrl = canvas.toDataURL('image/png');
-              
+
               imageReplacements.push({
                 img,
                 originalSrc: img.src,
                 dataUrl
               });
-              
+
               img.src = dataUrl;
+              await waitForImageReady(img);
             }
           } catch (canvasError) {
             console.warn('Both fetch and canvas methods failed for image:', img.src);
@@ -134,7 +153,11 @@ export default function App() {
       
       // Save and download
       const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const pdfBuffer = pdfBytes.buffer.slice(
+        pdfBytes.byteOffset,
+        pdfBytes.byteOffset + pdfBytes.byteLength
+      );
+      const blob = new Blob([pdfBuffer as ArrayBuffer], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -158,8 +181,8 @@ export default function App() {
       phone: "+41 79 257 55 74",
       location: "Baden AG, Switzerland",
       linkedin: "https://www.linkedin.com/in/daniel-robert-barber/",
-      github: null,
-      website: null,
+      github: undefined,
+      website: undefined,
       profileImage: profileImage,
     },
     summary: "In my seventh semester of a BSc in Computer Science (Design & Management) at FHNW, I work in IBM Switzerland’s Customer Success Management team for Data & AI. I support projects that design and deploy Generative and Agentic AI use cases, translating complex capabilities into user-centred, business-oriented solutions.",
