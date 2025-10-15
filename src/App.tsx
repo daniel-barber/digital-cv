@@ -37,23 +37,48 @@ const waitForImageReady = async (img: HTMLImageElement) => {
   });
 };
 
+const COLOR_FALLBACKS: Record<string, string> = {
+  '--color-red-500': '#ef4444',
+  '--color-orange-500': '#f97316',
+  '--color-green-500': '#22c55e',
+  '--color-emerald-500': '#10b981',
+  '--color-cyan-500': '#06b6d4',
+  '--color-blue-50': '#eff6ff',
+  '--color-blue-500': '#3b82f6',
+  '--color-blue-600': '#2563eb',
+  '--color-blue-700': '#1d4ed8',
+  '--color-indigo-50': '#eef2ff',
+  '--color-purple-50': '#faf5ff',
+  '--color-purple-500': '#a855f7',
+  '--color-pink-500': '#ec4899',
+  '--color-rose-500': '#f43f5e',
+  '--color-gray-50': '#f9fafb',
+  '--color-gray-100': '#f3f4f6',
+  '--color-gray-200': '#e5e7eb',
+  '--color-gray-400': '#9ca3af',
+  '--color-gray-500': '#6b7280',
+  '--color-gray-600': '#4b5563',
+  '--color-gray-700': '#374151',
+  '--color-gray-900': '#111827',
+};
+
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadPDF = async () => {
-    if (!cvRef.current) return;
+    const element = cvRef.current;
+    if (!element) return;
 
     setIsDownloading(true);
 
     const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
+    const appliedColorFallbacks: Array<{ name: string; previous: string }> = [];
 
     try {
-      const element = cvRef.current;
-
       // Convert all external images to inline data URLs to bypass CORS
       const images = Array.from(element.querySelectorAll('img'));
-      
+
       for (const img of images) {
         await waitForImageReady(img);
 
@@ -109,10 +134,16 @@ export default function App() {
           }
         }
       }
-      
+
       // Give browser time to update the images
       await new Promise(resolve => setTimeout(resolve, 300));
-      
+
+      for (const [name, fallback] of Object.entries(COLOR_FALLBACKS)) {
+        const previous = element.style.getPropertyValue(name);
+        appliedColorFallbacks.push({ name, previous });
+        element.style.setProperty(name, fallback);
+      }
+
       // Rasterize to PNG at 2x resolution for crisp output
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -164,6 +195,14 @@ export default function App() {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF: ' + (error as Error).message);
     } finally {
+      for (const { name, previous } of appliedColorFallbacks) {
+        if (previous) {
+          element.style.setProperty(name, previous);
+        } else {
+          element.style.removeProperty(name);
+        }
+      }
+
       for (const { img, originalSrc } of imageReplacements) {
         if (img.src !== originalSrc) {
           img.src = originalSrc;
