@@ -153,7 +153,7 @@ export default function App() {
   const cvData = {
     profile: {
       name: "Daniel Robert Barber",
-      title: "Customer Success Manager – Data & AI (Bachelor@IBM Program)",
+      title: "Bachelor@IBM • Customer Success Management",
       email: "daniel_barber23@hotmail.com",
       phone: "+41 79 257 55 74",
       location: "Baden AG, Switzerland",
@@ -162,7 +162,7 @@ export default function App() {
       website: null,
       profileImage: profileImage,
     },
-    summary: "In my seventh semester of a BSc in Computer Science (Design & Management) at FHNW, I work in IBM Switzerland’s Customer Success Management team for Data & AI. I support projects that design and deploy Generative and Agentic AI use cases, translating complex capabilities into user-centred, business-oriented solutions.",
+    summary: "Currently in my seventh semester of a BSc in Computer Science (Design & Management) at FHNW, I work in IBM Switzerland’s Customer Success Management team for Data & AI. I support projects that design and deploy Generative and Agentic AI use cases, translating complex capabilities into user-centred, business-oriented solutions.",
     experience: [
       {
         company: "IBM",
@@ -208,7 +208,7 @@ export default function App() {
         degree: "Bachelor of Science",
         field: "Computer Science",
         period: "2022 - 2026",
-        details: "Current Grade Average: 5.33 • Dean's List • Focus on Human-Computer Interaction"
+        details: "Current Grade Average: 5.35"
       },
       {
         school: "HKV Aarau",
