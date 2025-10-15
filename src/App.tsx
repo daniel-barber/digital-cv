@@ -8,7 +8,7 @@ import { VolunteerItem } from '../components/VolunteerItem';
 import { Button } from '../components/ui/button';
 import { Download } from 'lucide-react';
 import { useState, useRef } from 'react';
-import { toPng } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import { PDFDocument } from 'pdf-lib';
 import profileImage from "./assets/daniel.jpg";
 
@@ -43,15 +43,16 @@ export default function App() {
 
   const handleDownloadPDF = async () => {
     if (!cvRef.current) return;
-    
+
     setIsDownloading(true);
-    
+
+    const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
+
     try {
       const element = cvRef.current;
-      
+
       // Convert all external images to inline data URLs to bypass CORS
       const images = Array.from(element.querySelectorAll('img'));
-      const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
       
       for (const img of images) {
         await waitForImageReady(img);
@@ -112,31 +113,25 @@ export default function App() {
       // Give browser time to update the images
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Get dimensions in pixels (use offsetWidth for actual rendered size)
-      const pxW = element.offsetWidth;
-      const pxH = element.offsetHeight;
-      
       // Rasterize to PNG at 2x resolution for crisp output
-      // Use explicit width/height to ensure consistent capture
-      const dataUrl = await toPng(element, { 
-        pixelRatio: 2,
-        cacheBust: false,
+      const canvas = await html2canvas(element, {
+        scale: 2,
         backgroundColor: '#ffffff',
-        width: pxW,
-        height: pxH
+        useCORS: true,
+        logging: false,
+        imageTimeout: 2000,
+        width: element.offsetWidth,
+        height: element.offsetHeight,
       });
-      
-      // Restore original image sources
-      for (const { img, originalSrc } of imageReplacements) {
-        img.src = originalSrc;
-      }
+
+      const dataUrl = canvas.toDataURL('image/png');
       
       // Fetch the image data
       const imgArrayBuffer = await (await fetch(dataUrl)).arrayBuffer();
-      
+
       // Convert px to points (72 DPI / 96 DPI = 0.75)
-      const ptW = pxW * 0.75 * 2; // *2 because we used 2x pixel ratio
-      const ptH = pxH * 0.75 * 2;
+      const ptW = canvas.width * 0.75;
+      const ptH = canvas.height * 0.75;
       
       // Create PDF with custom page size
       const pdfDoc = await PDFDocument.create();
@@ -169,6 +164,12 @@ export default function App() {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF: ' + (error as Error).message);
     } finally {
+      for (const { img, originalSrc } of imageReplacements) {
+        if (img.src !== originalSrc) {
+          img.src = originalSrc;
+        }
+      }
+
       setIsDownloading(false);
     }
   };
