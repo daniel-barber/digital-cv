@@ -27,9 +27,9 @@ export function CVHeader({
   return (
     <div className="relative pb-10 mb-8">
       {/* Gradient background accent */}
-      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 -mx-12 -mt-12 rounded-t-lg" />
-      
-      <div className="relative flex flex-col md:flex-row gap-8 items-start pt-8">
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 -mx-12 -mt-12 rounded-t-lg -z-10" />
+
+      <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start pt-8">
         <ImageWithFallback
           src={profileImage}
           alt={name}
