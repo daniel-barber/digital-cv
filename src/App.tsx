@@ -162,10 +162,10 @@ export default function App() {
       website: null,
       profileImage: profileImage,
     },
-    summary: "Currently in my seventh semester of a BSc in Computer Science (Design & Management) at FHNW, I work in IBM Switzerland’s Customer Success Management team for Data & AI. I support projects that design and deploy Generative and Agentic AI use cases, translating complex capabilities into user-centred, business-oriented solutions.",
+    summary: "I am currently in my seventh semester of a Bachelor's degree in Computer Science at FHNW, majoring in Design & Management. I work at IBM Switzerland in the Customer Success Management team for Data & AI, where I support projects focused on designing and deploying Generative and Agentic AI use cases that drive measurable business value. With my background in marketing, UX, and technology, I am passionate about shaping AI solutions that are intuitive, impactful, and aligned with real user and business needs.",
     experience: [
       {
-        company: "IBM",
+        company: "IBM Schweiz AG",
         position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
         period: "Sep 2024 - Present",
         description: [
