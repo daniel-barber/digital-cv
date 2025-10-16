@@ -1,12 +1,10 @@
 import { Calendar } from 'lucide-react';
-import type { ReactNode } from 'react';
-
 
 interface ExperienceItemProps {
   company: string;
   position: string;
   period: string;
-  description: ReactNode[];
+  description: string[];
 }
 
 export function ExperienceItem({ company, position, period, description }: ExperienceItemProps) {
