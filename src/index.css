@@ -1485,3 +1485,8 @@ svg {
   inherits: false;
   initial-value: solid;
 }
+
+.cv-exporting .skill-pill {
+  box-shadow: none !important;
+  border-radius: 9999px !important;
+}

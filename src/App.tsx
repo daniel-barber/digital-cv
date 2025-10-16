@@ -10,113 +10,247 @@ import { Download } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { toPng } from 'html-to-image';
 import { PDFDocument } from 'pdf-lib';
-import profileImage from "./assets/daniel.jpg";
+import profileImage from './assets/daniel.jpg?inline';
 
+
+const waitForImageReady = async (img: HTMLImageElement) => {
+  if (img.complete && img.naturalWidth !== 0) {
+    try {
+      if ('decode' in img) {
+        await img.decode();
+      }
+    } catch (error) {
+      console.warn('Image decode failed, continuing with fallback load listener', error);
+    }
+    return;
+  }
+
+  await new Promise<void>((resolve) => {
+    const handleComplete = () => {
+      img.removeEventListener('load', handleComplete);
+      img.removeEventListener('error', handleComplete);
+      resolve();
+    };
+
+    img.addEventListener('load', handleComplete, { once: true });
+    img.addEventListener('error', handleComplete, { once: true });
+  });
+};
+
+const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
+
+const toAbsoluteUrl = (value: string) => {
+  try {
+    return new URL(value, window.location.href).href;
+  } catch (error) {
+    return value;
+  }
+};
+
+const proxyImageUrl = (absoluteUrl: string) => {
+  const withoutProtocol = absoluteUrl.replace(/^https?:\/\//i, '');
+  return `https://images.weserv.nl/?url=${encodeURIComponent(withoutProtocol)}`;
+};
+
+const fetchImageAsDataUrl = async (url: string) => {
+  const attempt = async (targetUrl: string) => {
+    const response = await fetch(targetUrl, {
+      cache: 'no-store',
+      referrerPolicy: 'no-referrer',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image resource: ${response.status} ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  try {
+    return await attempt(url);
+  } catch (error) {
+    if (isHttpUrl(url)) {
+      try {
+        return await attempt(proxyImageUrl(url));
+      } catch (proxyError) {
+        console.warn('Failed to proxy image for export', proxyError);
+      }
+    }
+
+    throw error;
+  }
+};
+
+const inlineCssBackgrounds = async (root: HTMLElement) => {
+  const replacements: Array<{ element: HTMLElement; originalBackgroundImage: string }> = [];
+  const elements: HTMLElement[] = [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))];
+
+  for (const element of elements) {
+    const computed = window.getComputedStyle(element);
+    const backgroundImage = computed.backgroundImage;
+
+    if (!backgroundImage || backgroundImage === 'none') {
+      continue;
+    }
+
+    const matches = Array.from(backgroundImage.matchAll(/url\((['"]?)([^'"\)]+)\1\)/g));
+
+    if (matches.length === 0) {
+      continue;
+    }
+
+    let updatedBackgroundImage = backgroundImage;
+    let didReplace = false;
+
+    for (const match of matches) {
+      const token = match[0];
+      const url = match[2];
+
+      if (!url || url.startsWith('data:') || url.startsWith('blob:')) {
+        continue;
+      }
+
+      const absoluteUrl = toAbsoluteUrl(url);
+
+      try {
+        const dataUrl = await fetchImageAsDataUrl(absoluteUrl);
+        updatedBackgroundImage = updatedBackgroundImage.split(token).join(`url("${dataUrl}")`);
+        didReplace = true;
+      } catch (error) {
+        console.warn('Failed to inline background image for export', error);
+      }
+    }
+
+    if (didReplace) {
+      replacements.push({
+        element,
+        originalBackgroundImage: element.style.backgroundImage,
+      });
+
+      element.style.backgroundImage = updatedBackgroundImage;
+    }
+  }
+
+  return replacements;
+};
 
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadPDF = async () => {
-    if (!cvRef.current) return;
-    
+    const element = cvRef.current;
+    if (!element) return;
+
     setIsDownloading(true);
-    
+
+    const htmlRoot = document.documentElement;
+    htmlRoot.classList.add('cv-exporting');
+
+    const imageReplacements: Array<{
+      img: HTMLImageElement;
+      originalSrcAttr: string | null;
+      originalSrcset: string | null;
+      originalSizes: string | null;
+      originalLoading: string | null;
+      originalCrossOrigin: string | null;
+    }> = [];
+
+    const backgroundReplacements: Array<{ element: HTMLElement; originalBackgroundImage: string }> = [];
+
     try {
-      const element = cvRef.current;
-      
       // Convert all external images to inline data URLs to bypass CORS
       const images = Array.from(element.querySelectorAll('img'));
-      const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
-      
+
       for (const img of images) {
-        // Wait for image to load
-        if (!img.complete) {
-          await new Promise((resolve) => {
-            img.onload = () => resolve(null);
-            img.onerror = () => resolve(null);
-            setTimeout(() => resolve(null), 5000);
-          });
-        }
-        
+        await waitForImageReady(img);
+
         // Skip if already a data URL
         if (img.src.startsWith('data:')) {
           continue;
         }
-        
-        // Fetch the image as a blob and convert to data URL
+
+        const originalSrcAttr = img.getAttribute('src');
+        const originalSrcset = img.getAttribute('srcset');
+        const originalSizes = img.getAttribute('sizes');
+        const originalLoading = img.getAttribute('loading');
+        const originalCrossOrigin = img.getAttribute('crossorigin');
+
+        if (originalLoading !== 'eager') {
+          img.setAttribute('loading', 'eager');
+        }
+
+        const absoluteUrl = toAbsoluteUrl(img.currentSrc || img.src);
+
         try {
-          const response = await fetch(img.src, { mode: 'cors' });
-          const blob = await response.blob();
-          const dataUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-          
+          const dataUrl = await fetchImageAsDataUrl(absoluteUrl);
+
           imageReplacements.push({
             img,
-            originalSrc: img.src,
-            dataUrl
+            originalSrcAttr,
+            originalSrcset,
+            originalSizes,
+            originalLoading,
+            originalCrossOrigin,
           });
-          
-          // Replace the src with data URL
+
+          img.removeAttribute('srcset');
+          img.removeAttribute('sizes');
           img.src = dataUrl;
-        } catch (fetchError) {
-          console.warn('Failed to fetch image, trying canvas method:', fetchError);
-          
-          // Fallback: try canvas method (only works if image has CORS headers)
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0);
-              const dataUrl = canvas.toDataURL('image/png');
-              
-              imageReplacements.push({
-                img,
-                originalSrc: img.src,
-                dataUrl
-              });
-              
-              img.src = dataUrl;
+          if ('decode' in img) {
+            try {
+              await img.decode();
+            } catch (decodeError) {
+              console.warn('Image decode failed after inlining, waiting for load event instead', decodeError);
+              await waitForImageReady(img);
             }
-          } catch (canvasError) {
-            console.warn('Both fetch and canvas methods failed for image:', img.src);
+          } else {
+            await waitForImageReady(img);
+          }
+
+          if (img.hasAttribute('crossorigin') && img.src.startsWith('data:')) {
+            img.removeAttribute('crossorigin');
+          }
+        } catch (fetchError) {
+          console.warn('Failed to inline image for export', fetchError);
+
+          if (originalLoading === null) {
+            img.removeAttribute('loading');
+          } else {
+            img.setAttribute('loading', originalLoading);
           }
         }
       }
-      
+
       // Give browser time to update the images
       await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Get dimensions in pixels (use offsetWidth for actual rendered size)
-      const pxW = element.offsetWidth;
-      const pxH = element.offsetHeight;
-      
+
+      backgroundReplacements.push(...await inlineCssBackgrounds(element));
+
+      const pxW = element.scrollWidth;
+      const pxH = element.scrollHeight;
+
       // Rasterize to PNG at 2x resolution for crisp output
-      // Use explicit width/height to ensure consistent capture
-      const dataUrl = await toPng(element, { 
+      const dataUrl = await toPng(element, {
         pixelRatio: 2,
-        cacheBust: false,
+        cacheBust: true,
         backgroundColor: '#ffffff',
         width: pxW,
-        height: pxH
+        height: pxH,
       });
-      
-      // Restore original image sources
-      for (const { img, originalSrc } of imageReplacements) {
-        img.src = originalSrc;
-      }
-      
+
       // Fetch the image data
       const imgArrayBuffer = await (await fetch(dataUrl)).arrayBuffer();
-      
+
       // Convert px to points (72 DPI / 96 DPI = 0.75)
-      const ptW = pxW * 0.75 * 2; // *2 because we used 2x pixel ratio
+      const ptW = pxW * 0.75 * 2;
       const ptH = pxH * 0.75 * 2;
       
       // Create PDF with custom page size
@@ -134,7 +268,11 @@ export default function App() {
       
       // Save and download
       const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const pdfBuffer = pdfBytes.buffer.slice(
+        pdfBytes.byteOffset,
+        pdfBytes.byteOffset + pdfBytes.byteLength
+      );
+      const blob = new Blob([pdfBuffer as ArrayBuffer], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -146,6 +284,51 @@ export default function App() {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF: ' + (error as Error).message);
     } finally {
+      htmlRoot.classList.remove('cv-exporting');
+
+      for (const { element: target, originalBackgroundImage } of backgroundReplacements) {
+        if (originalBackgroundImage) {
+          target.style.backgroundImage = originalBackgroundImage;
+        } else {
+          target.style.removeProperty('background-image');
+        }
+      }
+
+      for (const { img, originalSrcAttr, originalSrcset, originalSizes, originalLoading, originalCrossOrigin } of imageReplacements) {
+        if (originalSrcAttr !== null) {
+          img.setAttribute('src', originalSrcAttr);
+          if (img.src !== originalSrcAttr) {
+            img.src = originalSrcAttr;
+          }
+        } else {
+          img.removeAttribute('src');
+        }
+
+        if (originalSrcset !== null) {
+          img.setAttribute('srcset', originalSrcset);
+        } else {
+          img.removeAttribute('srcset');
+        }
+
+        if (originalSizes !== null) {
+          img.setAttribute('sizes', originalSizes);
+        } else {
+          img.removeAttribute('sizes');
+        }
+
+        if (originalLoading !== null) {
+          img.setAttribute('loading', originalLoading);
+        } else {
+          img.removeAttribute('loading');
+        }
+
+        if (originalCrossOrigin !== null) {
+          img.setAttribute('crossorigin', originalCrossOrigin);
+        } else {
+          img.removeAttribute('crossorigin');
+        }
+      }
+
       setIsDownloading(false);
     }
   };
@@ -158,8 +341,8 @@ export default function App() {
       phone: "+41 79 257 55 74",
       location: "Baden AG, Switzerland",
       linkedin: "https://www.linkedin.com/in/daniel-robert-barber/",
-      github: null,
-      website: null,
+      github: undefined,
+      website: undefined,
       profileImage: profileImage,
     },
     summary: "I am currently in my seventh semester of a Bachelor's degree in Computer Science at FHNW, majoring in Design & Management. I work at IBM Switzerland in the Customer Success Management team for Data & AI, where I support projects focused on designing and deploying Generative and Agentic AI use cases that drive measurable business value. With my background in marketing, UX, and technology, I am passionate about shaping AI solutions that are intuitive, impactful, and aligned with real user and business needs.",
