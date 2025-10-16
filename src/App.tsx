@@ -8,6 +8,7 @@ import { VolunteerItem } from '../components/VolunteerItem';
 import { Button } from '../components/ui/button';
 import { Download } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import { toPng } from 'html-to-image';
 import { PDFDocument } from 'pdf-lib';
 import profileImage from './assets/daniel.jpg?inline';
@@ -144,6 +145,60 @@ const inlineCssBackgrounds = async (root: HTMLElement) => {
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const handlePrint = useReactToPrint({
+    contentRef: cvRef,
+    documentTitle: 'CV_Daniel_Barber',
+    preserveAfterPrint: false,
+  });
+
+  const prepareForPrint = () => {
+    const el = cvRef.current;
+    if (!el) return;
+
+    const A4_HEIGHT_PX = 1122;
+    const MAX_PAGES = 2;
+    const naturalHeight = el.scrollHeight;
+    const targetHeight = MAX_PAGES * A4_HEIGHT_PX;
+    const scale = naturalHeight > 0 ? Math.min(1, targetHeight / naturalHeight) : 1;
+    const scaledHeight = naturalHeight * scale;
+    const pageCount = Math.max(1, Math.ceil(scaledHeight / A4_HEIGHT_PX));
+    const printableHeight = pageCount * A4_HEIGHT_PX;
+    const extraSpace = Math.max(0, printableHeight - scaledHeight);
+
+    el.style.transformOrigin = 'top center';
+    el.style.transform = `scale(${scale})`;
+    el.style.height = `${scaledHeight}px`;
+
+    if (extraSpace > 0) {
+      el.style.setProperty('--cv-print-extra-space', `${extraSpace}px`);
+    } else {
+      el.style.removeProperty('--cv-print-extra-space');
+    }
+  };
+
+  const cleanupAfterPrint = () => {
+    const el = cvRef.current;
+    if (!el) return;
+
+    el.style.removeProperty('--cv-print-extra-space');
+    el.style.removeProperty('transform');
+    el.style.removeProperty('transform-origin');
+    el.style.removeProperty('height');
+  };
+
+  const onPrintClick = async () => {
+    if (!handlePrint || !cvRef.current) {
+      return;
+    }
+
+    prepareForPrint();
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+    try {
+      await Promise.resolve(handlePrint());
+    } finally {
+      cleanupAfterPrint();
+    }
+  };
 
   const handleDownloadPDF = async () => {
     const element = cvRef.current;
@@ -475,18 +530,22 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto mb-4 flex justify-end">
-        <Button 
+      <div className="max-w-4xl mx-auto mb-4 flex justify-end gap-3 flex-wrap">
+        <Button onClick={onPrintClick} className="gap-2">
+          <Download className="w-4 h-4" />
+          Print as PDF (text)
+        </Button>
+        <Button
           onClick={handleDownloadPDF}
           disabled={isDownloading}
           className="gap-2"
         >
           <Download className="w-4 h-4" />
-          {isDownloading ? 'Generating PDF...' : 'Download as PDF'}
+          {isDownloading ? 'Generating PDF...' : 'Download (image PDF)'}
         </Button>
       </div>
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-        <div ref={cvRef} className="p-12">
+        <div ref={cvRef} className="cv-sheet p-12">
           <CVHeader {...cvData.profile} />
           
           <CVSection title="Professional Summary">

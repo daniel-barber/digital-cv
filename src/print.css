@@ -1,0 +1,34 @@
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    height: auto;
+  }
+
+  .cv-sheet {
+    width: 210mm;
+    min-height: 297mm;
+    transform-origin: top center;
+    padding-bottom: calc(3rem + var(--cv-print-extra-space, 0px));
+    margin: 0 auto;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .cv-sheet > * {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
