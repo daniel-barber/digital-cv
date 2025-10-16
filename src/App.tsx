@@ -156,19 +156,23 @@ export default function App() {
     if (!el) return;
 
     const A4_HEIGHT_PX = 1122;
-    const scale = Math.min(1, A4_HEIGHT_PX / el.scrollHeight);
-    el.style.transformOrigin = 'top left';
-    el.style.transform = `scale(${scale})`;
-    el.style.height = `${el.scrollHeight * scale}px`;
+    const naturalHeight = el.scrollHeight;
+    const pageCount = Math.max(1, Math.ceil(naturalHeight / A4_HEIGHT_PX));
+    const printableHeight = pageCount * A4_HEIGHT_PX;
+    const extraSpace = Math.max(0, printableHeight - naturalHeight);
+
+    if (extraSpace > 0) {
+      el.style.setProperty('--cv-print-extra-space', `${extraSpace}px`);
+    } else {
+      el.style.removeProperty('--cv-print-extra-space');
+    }
   };
 
   const cleanupAfterPrint = () => {
     const el = cvRef.current;
     if (!el) return;
 
-    el.style.transform = '';
-    el.style.height = '';
-    el.style.transformOrigin = '';
+    el.style.removeProperty('--cv-print-extra-space');
   };
 
   const onPrintClick = async () => {
@@ -177,6 +181,7 @@ export default function App() {
     }
 
     prepareForPrint();
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
     try {
       await Promise.resolve(handlePrint());
     } finally {

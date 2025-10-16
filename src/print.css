@@ -13,11 +13,18 @@
     width: 210mm;
     min-height: 297mm;
     transform-origin: top left;
+    padding-bottom: calc(3rem + var(--cv-print-extra-space, 0px));
+    margin: 0 auto;
   }
 
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .cv-sheet > * {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .avoid-break {
