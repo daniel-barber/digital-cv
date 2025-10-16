@@ -5,7 +5,7 @@ interface SkillCategoryProps {
 
 const categoryGradients: Record<string, string> = {
     "Professional & Personal": "from-blue-500 to-cyan-500",
-    "Technical Skills & Tools": "from-purple-500 to-pink-500",
+    "Technical Skills": "from-purple-500 to-pink-500",
     "Design & Process": "from-orange-500 to-red-500",
 };
 

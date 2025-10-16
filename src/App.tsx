@@ -408,8 +408,8 @@ export default function App() {
 
   const cvData = {
     profile: {
-      name: "Daniel Robert Barber",
-      title: "Bachelor@IBM • Customer Success Management",
+      name: "Daniel Barber",
+      title: "Bachelor@IBM • Customer Success • Data & AI",
       email: "daniel_barber23@hotmail.com",
       phone: "+41 79 257 55 74",
       location: "Baden AG, Switzerland",
@@ -418,49 +418,54 @@ export default function App() {
       website: "https://daniel-barber.github.io/digital-cv/",
       profileImage: profileImage,
     },
-    summary: "I am currently in my seventh semester of a Bachelor's degree in Computer Science at FHNW, majoring in Design & Management. I work at IBM Switzerland in the Customer Success Management team for Data & AI, where I support projects focused on designing and deploying Generative and Agentic AI use cases that drive measurable business value. With my background in marketing, UX, and technology, I am passionate about shaping AI solutions that are intuitive, impactful, and aligned with real user and business needs.",
-    experience: [
+      summary:
+          "I am in my seventh semester of a BSc in Computer Science at FHNW (Design & Management). At IBM Switzerland, I work in the Customer Success Management team for Data & AI, supporting projects that design and deploy Generative and Agentic AI use cases to deliver measurable business value. With a background spanning marketing, UX, and technology, I focus on shaping AI solutions that are intuitive, impactful, and aligned with real user and business needs.",
+      experience: [
       {
         company: "IBM Schweiz AG",
         position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
         period: "Sep 2024 - Present",
-        description: [
-          "Support projects to design and deploy Generative and Agentic AI use cases (incl. IBM watsonx).",
-          "Partner with Customer Success and Technical Sales to drive adoption and value realization.",
-          "Analyze usage patterns and feedback to identify opportunities and enhance success plans.",
-          "Prepare executive briefings, client dashboards, and success notes highlighting outcomes."
-        ]
+          description: [
+              "Support client projects to design and deploy Generative and Agentic AI use cases on IBM watsonx.",
+              "Assist with deployment reporting and forecasting to inform strategic planning.",
+              "Prepare documentation and client success materials that highlight value realization and progress.",
+              "Coordinate communication across teams to ensure smooth delivery and knowledge alignment.",
+              "Lead the promotional team for the watsonx Challenge Switzerland, a university program enabling students to solve AI use cases from Swiss companies.",
+          ]
       },
-      {
-        company: "Möbel Pfister AG",
-        position: "SEA Manager",
-        period: "Aug  2020 - Aug 2024",
-        description: [
-          "Managed performance marketing campaigns on Google & Bing",
-          "Created data-driven dashboards and performance analyses with Looker Studio",
-          "Oversaw budgets, cross-channel planning, and product feed optimization"
-        ]
-      },
-      {
-        company: "Möbel Pfister AG",
-        position: "Mediamatiker EFZ (Apprenticeship)",
-        period: "Aug 2016 - Jul 2020",
-        description: [
-          "Conducted A/B testing experiments that improved conversion rates by 18%"
-        ]
-      },
-      {
-        company: "Mürset Restaurants",
-        position: "Koch EFZ (Apprenticeship)",
-        period: "Aug 2012 - Jul 2015",
-        description: [
-          "Conducted A/B testing experiments that improved conversion rates by 18%"
-        ]
-      }
+        {
+            company: "Möbel Pfister AG",
+            position: "Search Engine Advertising Manager",
+            period: "Aug  2020 - Aug 2024",
+            description: [
+                "Implemented and optimized search and shopping campaigns across Google and Bing.",
+                "Built data-driven dashboards and analyses in Google Looker Studio to inform strategic decisions.",
+                "Planned and monitored SEA budgets and supported cross-channel display & social activities.",
+                "Managed and optimized product feeds across sales channels."
+            ]
+        },
+        {
+            company: "Möbel Pfister AG",
+            position: "Mediamatiker EFZ (Apprenticeship)",
+            period: "Aug 2016 - Jul 2020",
+            description: [
+                "Org-IT: first-level service desk; assisted on internal IT projects.",
+                "eCommerce: implemented landing pages, maintained product data, supported customer-card workflows and contributed concepts for new shop features.",
+                "Marketing: produced newsletters and print assets, coordinated social content updates."
+            ]
+        },
+        {
+            company: "Mürset Restaurants",
+            position: "Koch EFZ (Apprenticeship)",
+            period: "Aug 2012 - Jul 2015",
+            description: [
+                "Completed a culinary apprenticeship, developing precision, teamwork, and time management in a high-pressure kitchen environment."
+            ]
+        }
     ],
     education: [
       {
-        school: "University of Applied Sciences FHNW, Brugg",
+        school: "FHNW University of Applied Sciences, Brugg-Windisch",
         degree: "Bachelor of Science",
         field: "Computer Science",
         period: "2022 - 2026",
@@ -483,15 +488,15 @@ export default function App() {
     skills: [
         {
             category: "Professional & Personal",
-            skills: ["Analytical Thinking", "Stakeholder Communication", "Creativity", "Curiosity", "Adaptability", "Continuous Learning", "Customer Success", "Performance Marketing", "Empathy"]
+            skills: ["Analytical Thinking", "Stakeholder Management", "Creativity", "Curiosity", "Adaptability", "Structured Thinking", "Problem Solving", "Empathy"]
         },
         {
-        category: "Technical Skills & Tools",
-        skills: ["Java", "Python", "Kotlin", "React", "TypeScript", "Next.js", "Vue.js", "Node.js", "Express", "PostgreSQL", "MongoDB", "HTML/CSS", "Tailwind CSS", "Redux", "watsonx.ai", "watsonx Orchestrate", "Prompt Engineering", "Data Visualization", "REST APIs", "Git", "Docker"]
+        category: "Technical Skills",
+        skills: ["Java", "Python", "Kotlin", "React", "TypeScript", "Next.js", "HTML / CSS", "Tailwind CSS", "Git", "Docker", "SQL", "MongoDB",  "Streamlit", "watsonx.ai", "watsonx Orchestrate", "Prompt Engineering", "Data Visualization"]
       },
       {
         category: "Design & Process",
-        skills: ["Design Thinking", "Requirements Engineering", "Agile/Scrum", "User Research", "Figma", "Journey Mapping", "UI/UX Design", "Prototyping" ]
+        skills: ["Design Thinking", "Requirements Engineering", "Agile / Scrum", "User Research", "Journey Mapping", "UI/UX Design", "Figma", "Prototyping", "Workshop Facilitation" ]
       },
     ],
     languages: [
@@ -512,19 +517,19 @@ export default function App() {
       },
       {
         language: "Spanish",
-        proficiency: "Basic (A1)",
+        proficiency: "Elementary (A1)",
         level: 1
       }
     ],
     volunteer: [
       {
-        organization: "du-bist-du • Program of Sexuelle Gesundheit Zürich",
+        organization: "du-bist-du (Program of Sexuelle Gesundheit Zürich)",
         role: "Volunteer Counselor & Website Manager",
         period: "Nov 2016 - Present",
         description: [
-          "Peer counselling on sexual and romantic orientation for young LGBT+ people.",
-            "Support awareness and education initiatives promoting mental and physical health.",
-            "Manage and maintain the du-bist-du.ch website to improve accessibility and outreach."
+          "Provide peer counselling for young LGBT+ people on sexual and romantic orientation.",
+          "Support awareness and education initiatives promoting mental and physical wellbeing.",
+          "Maintain and improve the du-bist-du.ch website to enhance accessibility and outreach."
         ]
       },
     ]
