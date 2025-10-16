@@ -335,7 +335,7 @@ export default function App() {
 
   const cvData = {
     profile: {
-      name: "Daniel Robert Barber",
+      name: "Daniel Barber",
       title: "Bachelor@IBM • Customer Success Management",
       email: "daniel_barber23@hotmail.com",
       phone: "+41 79 257 55 74",
