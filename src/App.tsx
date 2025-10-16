@@ -345,18 +345,19 @@ export default function App() {
       website: undefined,
       profileImage: profileImage,
     },
-    summary: "I am currently in my seventh semester of a Bachelor's degree in Computer Science at FHNW, majoring in Design & Management. I work at IBM Switzerland in the Customer Success Management team for Data & AI, where I support projects focused on designing and deploying Generative and Agentic AI use cases that drive measurable business value. With my background in marketing, UX, and technology, I am passionate about shaping AI solutions that are intuitive, impactful, and aligned with real user and business needs.",
-    experience: [
+      summary:
+          "I am in my seventh semester of a BSc in Computer Science at FHNW (Design & Management). At IBM Switzerland, I work in the Customer Success Management team for Data & AI, supporting projects that design and deploy Generative and Agentic AI use cases to deliver measurable business value. With a background spanning marketing, UX, and technology, I focus on shaping AI solutions that are intuitive, impactful, and aligned with real user and business needs.",
+      experience: [
       {
         company: "IBM Schweiz AG",
         position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
         period: "Sep 2024 - Present",
           description: [
-              "Contribute to client projects to design and deploy Generative and Agentic AI use cases built on watsonx.",
-              "Assist in deployment reporting and forecasting to support strategic planning.",
-              "Prepare documentation, presentations and client success materials highlighting value realization and project progress.",
-              "Coordinate communication between Customer Success, Technical Sales and Client Engineering to ensure smooth delivery and knowledge alignment.",
-              "Lead the promotional team of the watsonx Agentic AI Challenge Switzerland, a university program enabling students to co-develop real-world AI use cases from Swiss companies."
+              "Support client projects to design and deploy Generative and Agentic AI use cases on IBM watsonx.",
+              "Assist with deployment reporting and forecasting to inform strategic planning.",
+              "Prepare documentation, presentations, and client success materials that highlight value realization and progress.",
+              "Coordinate communication across Customer Success, Technical Sales, and Client Engineering to ensure smooth delivery and knowledge alignment.",
+              "Lead the promotional team for the watsonx Agentic AI Challenge Switzerland, a university program enabling students to solve AI use cases from Swiss companies."
           ]
       },
         {
@@ -364,9 +365,10 @@ export default function App() {
             position: "Search Engine Advertising Manager",
             period: "Aug  2020 - Aug 2024",
             description: [
-                "Managed performance marketing campaigns on Google & Bing",
-                "Created data-driven dashboards and performance analyses",
-                "Oversaw budgets, cross-channel planning, and product feed optimization"
+                "Implemented and optimized search and shopping campaigns across Google and Bing.",
+                "Built data-driven dashboards and analyses in Google Looker Studio to inform strategic decisions.",
+                "Planned and monitored SEA budgets and supported cross-channel display & social activities.",
+                "Managed and optimized product feeds across sales channels."
             ]
         },
         {
@@ -374,9 +376,9 @@ export default function App() {
             position: "Mediamatiker EFZ (Apprenticeship)",
             period: "Aug 2016 - Jul 2020",
             description: [
-                "Org-IT: first-level service desk and support on various IT projects.",
-                "eCommerce: implemented landing pages, maintained product data, supported customer-card applications and contributed concepts for new shop features.",
-                "Marketing: produced newsletters, print materials and social media posts."
+                "Org-IT: first-level service desk; assisted on internal IT projects.",
+                "eCommerce: implemented landing pages, maintained product data, supported customer-card workflows and contributed concepts for new shop features.",
+                "Marketing: produced newsletters and print assets, coordinated social content updates."
             ]
         },
         {
@@ -384,7 +386,7 @@ export default function App() {
             position: "Koch EFZ (Apprenticeship)",
             period: "Aug 2012 - Jul 2015",
             description: [
-                "Worked in all kitchen positions."
+                "Completed a culinary apprenticeship, developing precision, teamwork, and time management in a high-pressure kitchen environment."
             ]
         }
     ],
@@ -421,7 +423,7 @@ export default function App() {
       },
       {
         category: "Design & Process",
-        skills: ["Design Thinking", "Requirements Engineering", "Agile/Scrum", "User Research", "Figma", "Journey Mapping", "UI/UX Design", "Prototyping" ]
+        skills: ["Design Thinking", "Requirements Engineering", "Agile / Scrum", "User Research", "Figma", "Journey Mapping", "UI/UX Design", "Prototyping" ]
       },
     ],
     languages: [
