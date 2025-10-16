@@ -1,0 +1,13 @@
+.view-live-cv-link {
+  display: none;
+}
+
+@media print {
+  .view-live-cv-link {
+    display: inline-flex;
+  }
+}
+
+.cv-exporting .view-live-cv-link {
+  display: inline-flex;
+}
