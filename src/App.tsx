@@ -352,7 +352,7 @@ export default function App() {
         position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
         period: "Sep 2024 - Present",
         description: [
-          "Support projects to design and deploy Generative and Agentic AI use cases (incl. IBM watsonx).",
+          "Support projects to design and deploy Generative and Agentic AI use cases",
           "Partner with Customer Success and Technical Sales to drive adoption and value realization.",
           "Analyze usage patterns and feedback to identify opportunities and enhance success plans.",
           "Prepare executive briefings, client dashboards, and success notes highlighting outcomes."
@@ -387,7 +387,7 @@ export default function App() {
     ],
     education: [
       {
-        school: "University of Applied Sciences FHNW, Brugg",
+        school: "FHNW University of Applied Sciences, Brugg-Windisch",
         degree: "Bachelor of Science",
         field: "Computer Science",
         period: "2022 - 2026",
@@ -410,10 +410,10 @@ export default function App() {
     skills: [
         {
             category: "Professional & Personal",
-            skills: ["Analytical Thinking", "Stakeholder Communication", "Creativity", "Curiosity", "Adaptability", "Continuous Learning", "Customer Success", "Performance Marketing", "Empathy"]
+            skills: ["Analytical Thinking", "Stakeholder Communication", "Creativity", "Curiosity", "Adaptability", "Continuous Learning", "Problem Solving", "Empathy"]
         },
         {
-        category: "Technical Skills & Tools",
+        category: "Technical Skills",
         skills: ["Java", "Python", "Kotlin", "React", "TypeScript", "Next.js", "Vue.js", "Node.js", "Express", "PostgreSQL", "MongoDB", "HTML/CSS", "Tailwind CSS", "Redux", "watsonx.ai", "watsonx Orchestrate", "Prompt Engineering", "Data Visualization", "REST APIs", "Git", "Docker"]
       },
       {
@@ -439,19 +439,19 @@ export default function App() {
       },
       {
         language: "Spanish",
-        proficiency: "Basic (A1)",
+        proficiency: "Elementary (A1)",
         level: 1
       }
     ],
     volunteer: [
       {
-        organization: "du-bist-du • Program of Sexuelle Gesundheit Zürich",
+        organization: "du-bist-du (Program of Sexuelle Gesundheit Zürich)",
         role: "Volunteer Counselor & Website Manager",
         period: "Nov 2016 - Present",
         description: [
-          "Peer counselling on sexual and romantic orientation for young LGBT+ people.",
-            "Support awareness and education initiatives promoting mental and physical health.",
-            "Manage and maintain the du-bist-du.ch website to improve accessibility and outreach."
+          "Provide peer counselling for young LGBT+ people on sexual and romantic orientation.",
+          "Support awareness and education initiatives promoting mental and physical wellbeing.",
+          "Maintain and improve the du-bist-du.ch website to enhance accessibility and outreach."
         ]
       },
     ]
