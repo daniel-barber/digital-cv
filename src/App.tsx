@@ -359,32 +359,34 @@ export default function App() {
               "Lead the promotional team of the watsonx Agentic AI Challenge Switzerland, a university program enabling students to co-develop real-world AI use cases from Swiss companies."
           ]
       },
-      {
-        company: "Möbel Pfister AG",
-        position: "SEA Manager",
-        period: "Aug  2020 - Aug 2024",
-        description: [
-          "Managed performance marketing campaigns on Google & Bing",
-          "Created data-driven dashboards and performance analyses with Looker Studio",
-          "Oversaw budgets, cross-channel planning, and product feed optimization"
-        ]
-      },
-      {
-        company: "Möbel Pfister AG",
-        position: "Mediamatiker EFZ (Apprenticeship)",
-        period: "Aug 2016 - Jul 2020",
-        description: [
-          "Conducted A/B testing experiments that improved conversion rates by 18%"
-        ]
-      },
-      {
-        company: "Mürset Restaurants",
-        position: "Koch EFZ (Apprenticeship)",
-        period: "Aug 2012 - Jul 2015",
-        description: [
-          "Conducted A/B testing experiments that improved conversion rates by 18%"
-        ]
-      }
+        {
+            company: "Möbel Pfister AG",
+            position: "Search Engine Advertising Manager",
+            period: "Aug  2020 - Aug 2024",
+            description: [
+                "Managed performance marketing campaigns on Google & Bing",
+                "Created data-driven dashboards and performance analyses",
+                "Oversaw budgets, cross-channel planning, and product feed optimization"
+            ]
+        },
+        {
+            company: "Möbel Pfister AG",
+            position: "Mediamatiker EFZ (Apprenticeship)",
+            period: "Aug 2016 - Jul 2020",
+            description: [
+                "Org-IT: first-level service desk and support on various IT projects.",
+                "eCommerce: implemented landing pages, maintained product data, supported customer-card applications and contributed concepts for new shop features.",
+                "Marketing: produced newsletters, print materials and social media posts."
+            ]
+        },
+        {
+            company: "Mürset Restaurants",
+            position: "Koch EFZ (Apprenticeship)",
+            period: "Aug 2012 - Jul 2015",
+            description: [
+                "Worked in all kitchen positions."
+            ]
+        }
     ],
     education: [
       {
