@@ -101,7 +101,7 @@ export function CVHeader({
                 href={website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+                className="hidden print:flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <Globe className="w-4 h-4 flex-shrink-0" />
                 <span className="text-sm">View Live CV</span>
