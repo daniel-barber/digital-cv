@@ -419,7 +419,7 @@ export default function App() {
       profileImage: profileImage,
     },
       summary:
-          "I am curently in my seventh semester of a Bachelor of Science in Computer Science program at FHNW with a major in Design & Management. At IBM Switzerland, I am on the Customer Success Management team for Data & AI. I support projects that design and deploy AI use cases to deliver measurable business value. Drawing from my background in marketing, UX, and technology, I develop solutions that are intuitive, impactful, and aligned with real user and business needs.",
+          "I am currently in my seventh semester of a Bachelor of Science in Computer Science program at FHNW with a major in Design & Management. At IBM Switzerland, I am on the Customer Success Management team for Data & AI. I support projects that design and deploy AI use cases to deliver measurable business value. Drawing from my background in marketing, UX, and technology, I develop solutions that are intuitive, impactful, and aligned with real user and business needs.",
       experience: [
       {
         company: "IBM Schweiz AG",
