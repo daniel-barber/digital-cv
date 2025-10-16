@@ -355,9 +355,20 @@ export default function App() {
           description: [
               "Support client projects to design and deploy Generative and Agentic AI use cases on IBM watsonx.",
               "Assist with deployment reporting and forecasting to inform strategic planning.",
-              "Prepare documentation, presentations, and client success materials that highlight value realization and progress.",
-              "Coordinate communication across Customer Success, Technical Sales, and Client Engineering to ensure smooth delivery and knowledge alignment.",
-              "Lead the promotional team for the watsonx Agentic AI Challenge Switzerland, a university program enabling students to solve AI use cases from Swiss companies."
+              "Prepare documentation and client success materials that highlight value realization and progress.",
+              "Coordinate communication across teams to ensure smooth delivery and knowledge alignment.",
+              <>
+                  Lead the promotional team for the{" "}
+                  <a
+                      href="https://www.linkedin.com/showcase/watsonx-agentic-ai-challenge-switzerland/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                      watsonx Challenge Switzerland
+                  </a>
+                  , a university program enabling students to solve AI use cases from Swiss companies.
+              </>
           ]
       },
         {
