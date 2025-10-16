@@ -21,7 +21,8 @@ export function SkillCategory({ category, skills }: SkillCategoryProps) {
                 {skills.map((skill, index) => (
                     <span
                         key={index}
-                        className="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors shadow-sm"
+                        className="skill-pill px-4 py-2.5 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors shadow-sm"
+                        style={{ borderRadius: '9999px' }}
                     >
             {skill}
           </span>
