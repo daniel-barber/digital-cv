@@ -1,4 +1,5 @@
-import { Mail, Phone, MapPin, Linkedin, Github, Globe } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Github, Globe, ArrowUpRight } from 'lucide-react';
+import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface CVHeaderProps {
@@ -75,15 +76,33 @@ export function CVHeader({
           
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             {linkedin && (
-              <a
-                href={linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                <Linkedin className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">LinkedIn</span>
-              </a>
+              <>
+                <a
+                  href={linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
+                >
+                  <Linkedin className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm">LinkedIn</span>
+                </a>
+                <div className="cv-export-only w-full">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="mt-2 inline-flex items-center gap-2 rounded-full border-blue-200 bg-white/90 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-white"
+                  >
+                    <a
+                      href="https://daniel-barber.github.io/digital-cv/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Live CV
+                      <ArrowUpRight className="w-4 h-4" />
+                    </a>
+                  </Button>
+                </div>
+              </>
             )}
             {github && (
               <a

@@ -6,7 +6,7 @@ import { SkillCategory } from '../components/SkillCategory';
 import { LanguageItem } from '../components/LanguageItem';
 import { VolunteerItem } from '../components/VolunteerItem';
 import { Button } from '../components/ui/button';
-import { Download, ArrowUpRight } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { toPng } from 'html-to-image';
 import { PDFDocument, PDFName, PDFString } from 'pdf-lib';
@@ -544,22 +544,6 @@ export default function App() {
       </div>
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
         <div ref={cvRef} className="relative p-12">
-          <div className="cv-export-only absolute right-12 top-12 z-20">
-            <Button
-              asChild
-              variant="outline"
-              className="flex items-center gap-2 rounded-full border-blue-200 bg-white/90 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-white"
-            >
-              <a
-                href="https://daniel-barber.github.io/digital-cv/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Live CV
-                <ArrowUpRight className="w-4 h-4" />
-              </a>
-            </Button>
-          </div>
           <CVHeader {...cvData.profile} />
 
           <CVSection title="Professional Summary">
