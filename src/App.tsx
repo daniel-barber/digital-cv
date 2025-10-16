@@ -351,12 +351,13 @@ export default function App() {
         company: "IBM Schweiz AG",
         position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
         period: "Sep 2024 - Present",
-        description: [
-          "Support projects to design and deploy Generative and Agentic AI use cases",
-          "Partner with Customer Success and Technical Sales to drive adoption and value realization.",
-          "Analyze usage patterns and feedback to identify opportunities and enhance success plans.",
-          "Prepare executive briefings, client dashboards, and success notes highlighting outcomes."
-        ]
+          description: [
+              "Contribute to client projects to design and deploy Generative and Agentic AI use cases built on watsonx.",
+              "Assist in deployment reporting and forcasting to support strategic planning.",
+              "Prepare documentation, presentations and client success materials highlighting value realization and project progress.",
+              "Coordinate communication between Customer Success, Technical Sales and Client Engineering to ensure smooth delivery and knowledge alignment.",
+              "Lead the promotional team of the watsonx Agentic AI Challenge Switzerland, a university program enabling students to co-develop real-world AI use cases from Swiss companies."
+          ]
       },
       {
         company: "Möbel Pfister AG",
