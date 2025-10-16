@@ -415,7 +415,7 @@ export default function App() {
       location: "Baden AG, Switzerland",
       linkedin: "https://www.linkedin.com/in/daniel-robert-barber/",
       github: undefined,
-      website: undefined,
+      website: "https://daniel-barber.github.io/digital-cv/",
       profileImage: profileImage,
     },
     summary: "I am currently in my seventh semester of a Bachelor's degree in Computer Science at FHNW, majoring in Design & Management. I work at IBM Switzerland in the Customer Success Management team for Data & AI, where I support projects focused on designing and deploying Generative and Agentic AI use cases that drive measurable business value. With my background in marketing, UX, and technology, I am passionate about shaping AI solutions that are intuitive, impactful, and aligned with real user and business needs.",

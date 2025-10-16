@@ -104,7 +104,7 @@ export function CVHeader({
                 className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <Globe className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">Portfolio</span>
+                <span className="text-sm">View Live CV</span>
               </a>
             )}
           </div>
