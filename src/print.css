@@ -12,7 +12,7 @@
   .cv-sheet {
     width: 210mm;
     min-height: 297mm;
-    transform-origin: top left;
+    transform-origin: top center;
     padding-bottom: calc(3rem + var(--cv-print-extra-space, 0px));
     margin: 0 auto;
   }

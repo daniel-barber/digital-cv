@@ -156,10 +156,18 @@ export default function App() {
     if (!el) return;
 
     const A4_HEIGHT_PX = 1122;
+    const MAX_PAGES = 2;
     const naturalHeight = el.scrollHeight;
-    const pageCount = Math.max(1, Math.ceil(naturalHeight / A4_HEIGHT_PX));
+    const targetHeight = MAX_PAGES * A4_HEIGHT_PX;
+    const scale = naturalHeight > 0 ? Math.min(1, targetHeight / naturalHeight) : 1;
+    const scaledHeight = naturalHeight * scale;
+    const pageCount = Math.max(1, Math.ceil(scaledHeight / A4_HEIGHT_PX));
     const printableHeight = pageCount * A4_HEIGHT_PX;
-    const extraSpace = Math.max(0, printableHeight - naturalHeight);
+    const extraSpace = Math.max(0, printableHeight - scaledHeight);
+
+    el.style.transformOrigin = 'top center';
+    el.style.transform = `scale(${scale})`;
+    el.style.height = `${scaledHeight}px`;
 
     if (extraSpace > 0) {
       el.style.setProperty('--cv-print-extra-space', `${extraSpace}px`);
@@ -173,6 +181,9 @@ export default function App() {
     if (!el) return;
 
     el.style.removeProperty('--cv-print-extra-space');
+    el.style.removeProperty('transform');
+    el.style.removeProperty('transform-origin');
+    el.style.removeProperty('height');
   };
 
   const onPrintClick = async () => {

@@ -1,8 +1,7 @@
-import type { MutableRefObject, ReactInstance } from 'react';
-
-type PrintTarget = ReactInstance | HTMLElement | null;
-
 declare module 'react-to-print' {
+  import type { MutableRefObject, ReactInstance } from 'react';
+
+  type PrintTarget = ReactInstance | HTMLElement | null;
   interface UseReactToPrintOptions {
     content?: () => PrintTarget;
     contentRef?: MutableRefObject<HTMLElement | null>;
