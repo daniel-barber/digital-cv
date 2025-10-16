@@ -7,7 +7,7 @@ import { LanguageItem } from '../components/LanguageItem';
 import { VolunteerItem } from '../components/VolunteerItem';
 import { Button } from '../components/ui/button';
 import { Download } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import { PDFDocument } from 'pdf-lib';
 import profileImage from './assets/daniel.jpg?inline';
@@ -42,7 +42,7 @@ const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
 const toAbsoluteUrl = (value: string) => {
   try {
     return new URL(value, window.location.href).href;
-  } catch (error) {
+  } catch {
     return value;
   }
 };
@@ -100,7 +100,7 @@ const inlineCssBackgrounds = async (root: HTMLElement) => {
       continue;
     }
 
-    const matches = Array.from(backgroundImage.matchAll(/url\((['"]?)([^'"\)]+)\1\)/g));
+    const matches = Array.from(backgroundImage.matchAll(/url\((['"]?)([^"'()]+)\1\)/g));
 
     if (matches.length === 0) {
       continue;
@@ -144,10 +144,67 @@ const inlineCssBackgrounds = async (root: HTMLElement) => {
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const profileImageReadyRef = useRef<Promise<void> | null>(null);
+
+  useEffect(() => {
+    const preloadImage = async (src: string) => {
+      if (!src) {
+        return;
+      }
+
+      const img = new Image();
+      img.loading = 'eager';
+
+      const waitForLoad = new Promise<void>((resolve, reject) => {
+        img.addEventListener('load', () => resolve(), { once: true });
+        img.addEventListener('error', () => reject(new Error('Failed to preload image')), { once: true });
+      });
+
+      img.src = src;
+
+      if (img.complete && img.naturalWidth !== 0) {
+        try {
+          if ('decode' in img) {
+            await img.decode();
+          }
+          return;
+        } catch (error) {
+          console.warn('Image decode failed while preloading, waiting for load event instead', error);
+        }
+      }
+
+      if ('decode' in img) {
+        try {
+          await img.decode();
+          return;
+        } catch (error) {
+          console.warn('Image decode failed while preloading, waiting for load event instead', error);
+        }
+      }
+
+      await waitForLoad;
+    };
+
+    profileImageReadyRef.current = (async () => {
+      try {
+        await preloadImage(profileImage);
+      } catch (error) {
+        console.warn('Failed to preload profile image for export', error);
+      }
+    })();
+  }, []);
 
   const handleDownloadPDF = async () => {
     const element = cvRef.current;
     if (!element) return;
+
+    if (profileImageReadyRef.current) {
+      try {
+        await profileImageReadyRef.current;
+      } catch (error) {
+        console.warn('Profile image preload promise rejected, continuing with export', error);
+      }
+    }
 
     setIsDownloading(true);
 
