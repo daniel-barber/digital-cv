@@ -485,7 +485,7 @@ export default function App() {
                 degree: "Bachelor of Science",
                 field: "Computer Science (Design & Management)",
                 period: "2022 - 2026",
-                details: "Current Grade Average: 5.35 / 6.0 (Grade A Student, Top 10%)"
+                details: "Current Grade Average: 5.3 / 6.0 (Grade A Student, Top 10%)"
             },
             {
                 school: "HKV Aarau",
