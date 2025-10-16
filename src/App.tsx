@@ -50,7 +50,13 @@ export default function App() {
     const htmlRoot = document.documentElement;
     htmlRoot.classList.add('cv-exporting');
 
-    const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
+    const imageReplacements: Array<{
+      img: HTMLImageElement;
+      originalSrcAttr: string | null;
+      originalSrcset: string | null;
+      originalSizes: string | null;
+      dataUrl: string;
+    }> = [];
 
     try {
       // Convert all external images to inline data URLs to bypass CORS
@@ -62,6 +68,12 @@ export default function App() {
         // Skip if already a data URL
         if (img.src.startsWith('data:')) {
           continue;
+        }
+
+        const originalLoading = img.getAttribute('loading');
+        if (originalLoading !== 'eager') {
+          img.setAttribute('data-export-original-loading', originalLoading ?? '');
+          img.setAttribute('loading', 'eager');
         }
 
         const imgUrl = img.currentSrc || img.src;
@@ -83,13 +95,18 @@ export default function App() {
 
           imageReplacements.push({
             img,
-            originalSrc: img.src,
-            dataUrl
+            originalSrcAttr: img.getAttribute('src'),
+            originalSrcset: img.getAttribute('srcset'),
+            originalSizes: img.getAttribute('sizes'),
+            dataUrl,
           });
 
           // Replace the src with data URL
-          img.src = dataUrl;
           img.setAttribute('data-export-inline-src', dataUrl);
+          img.setAttribute('src', dataUrl);
+          img.removeAttribute('srcset');
+          img.removeAttribute('sizes');
+          img.src = dataUrl;
           await waitForImageReady(img);
         } catch (fetchError) {
           console.warn('Failed to fetch image, trying canvas method:', fetchError);
@@ -106,12 +123,17 @@ export default function App() {
 
               imageReplacements.push({
                 img,
-                originalSrc: img.src,
-                dataUrl
+                originalSrcAttr: img.getAttribute('src'),
+                originalSrcset: img.getAttribute('srcset'),
+                originalSizes: img.getAttribute('sizes'),
+                dataUrl,
               });
 
-              img.src = dataUrl;
               img.setAttribute('data-export-inline-src', dataUrl);
+              img.setAttribute('src', dataUrl);
+              img.removeAttribute('srcset');
+              img.removeAttribute('sizes');
+              img.src = dataUrl;
               await waitForImageReady(img);
             }
           } catch (canvasError) {
@@ -175,12 +197,40 @@ export default function App() {
     } finally {
       htmlRoot.classList.remove('cv-exporting');
 
-      for (const { img, originalSrc } of imageReplacements) {
-        if (img.src !== originalSrc) {
-          img.src = originalSrc;
-        }
+      for (const { img, originalSrcAttr, originalSrcset, originalSizes } of imageReplacements) {
         if (img.hasAttribute('data-export-inline-src')) {
           img.removeAttribute('data-export-inline-src');
+        }
+
+        if (originalSrcAttr !== null) {
+          img.setAttribute('src', originalSrcAttr);
+          if (img.src !== originalSrcAttr) {
+            img.src = originalSrcAttr;
+          }
+        } else {
+          img.removeAttribute('src');
+        }
+
+        if (originalSrcset !== null) {
+          img.setAttribute('srcset', originalSrcset);
+        } else {
+          img.removeAttribute('srcset');
+        }
+
+        if (originalSizes !== null) {
+          img.setAttribute('sizes', originalSizes);
+        } else {
+          img.removeAttribute('sizes');
+        }
+
+        if (img.hasAttribute('data-export-original-loading')) {
+          const value = img.getAttribute('data-export-original-loading') ?? '';
+          if (value) {
+            img.setAttribute('loading', value);
+          } else {
+            img.removeAttribute('loading');
+          }
+          img.removeAttribute('data-export-original-loading');
         }
       }
 
