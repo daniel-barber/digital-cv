@@ -7,150 +7,12 @@ import { LanguageItem } from '../components/LanguageItem';
 import { VolunteerItem } from '../components/VolunteerItem';
 import { Button } from '../components/ui/button';
 import { Download } from 'lucide-react';
-import { useState, useRef } from 'react';
-import { toPng } from 'html-to-image';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import profileImage from "./assets/daniel.jpg";
+import { CVPDFDocument } from './CVPDFDocument';
+import type { CVData } from './types/cv';
 
-
-export default function App() {
-  const cvRef = useRef<HTMLDivElement>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const handleDownloadPDF = async () => {
-    if (!cvRef.current) return;
-    
-    setIsDownloading(true);
-    
-    try {
-      const element = cvRef.current;
-      
-      // Convert all external images to inline data URLs to bypass CORS
-      const images = Array.from(element.querySelectorAll('img'));
-      const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
-      
-      for (const img of images) {
-        // Wait for image to load
-        if (!img.complete) {
-          await new Promise((resolve) => {
-            img.onload = () => resolve(null);
-            img.onerror = () => resolve(null);
-            setTimeout(() => resolve(null), 5000);
-          });
-        }
-        
-        // Skip if already a data URL
-        if (img.src.startsWith('data:')) {
-          continue;
-        }
-        
-        // Fetch the image as a blob and convert to data URL
-        try {
-          const response = await fetch(img.src, { mode: 'cors' });
-          const blob = await response.blob();
-          const dataUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-          
-          imageReplacements.push({
-            img,
-            originalSrc: img.src,
-            dataUrl
-          });
-          
-          // Replace the src with data URL
-          img.src = dataUrl;
-        } catch (fetchError) {
-          console.warn('Failed to fetch image, trying canvas method:', fetchError);
-          
-          // Fallback: try canvas method (only works if image has CORS headers)
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0);
-              const dataUrl = canvas.toDataURL('image/png');
-              
-              imageReplacements.push({
-                img,
-                originalSrc: img.src,
-                dataUrl
-              });
-              
-              img.src = dataUrl;
-            }
-          } catch (canvasError) {
-            console.warn('Both fetch and canvas methods failed for image:', img.src);
-          }
-        }
-      }
-      
-      // Give browser time to update the images
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Get dimensions in pixels (use offsetWidth for actual rendered size)
-      const pxW = element.offsetWidth;
-      const pxH = element.offsetHeight;
-      
-      // Rasterize to PNG at 2x resolution for crisp output
-      // Use explicit width/height to ensure consistent capture
-      const dataUrl = await toPng(element, { 
-        pixelRatio: 2,
-        cacheBust: false,
-        backgroundColor: '#ffffff',
-        width: pxW,
-        height: pxH
-      });
-      
-      // Restore original image sources
-      for (const { img, originalSrc } of imageReplacements) {
-        img.src = originalSrc;
-      }
-      
-      // Fetch the image data
-      const imgArrayBuffer = await (await fetch(dataUrl)).arrayBuffer();
-      
-      // Convert px to points (72 DPI / 96 DPI = 0.75)
-      const ptW = pxW * 0.75 * 2; // *2 because we used 2x pixel ratio
-      const ptH = pxH * 0.75 * 2;
-      
-      // Create PDF with custom page size
-      const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage([ptW, ptH]);
-      
-      // Embed PNG and draw it
-      const pngImage = await pdfDoc.embedPng(imgArrayBuffer);
-      page.drawImage(pngImage, {
-        x: 0,
-        y: 0,
-        width: ptW,
-        height: ptH,
-      });
-      
-      // Save and download
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'CV_Daniel_Barber.pdf';
-      link.click();
-      URL.revokeObjectURL(url);
-      
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF: ' + (error as Error).message);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  const cvData = {
+const cvData: CVData = {
     profile: {
       name: "Daniel Robert Barber",
       title: "Customer Success Manager – Data & AI (Bachelor@IBM Program)",
@@ -158,8 +20,8 @@ export default function App() {
       phone: "+41 79 257 55 74",
       location: "Baden AG, Switzerland",
       linkedin: "https://www.linkedin.com/in/daniel-robert-barber/",
-      github: null,
-      website: null,
+      github: undefined,
+      website: undefined,
       profileImage: profileImage,
     },
     summary: "In my seventh semester of a BSc in Computer Science (Design & Management) at FHNW, I work in IBM Switzerland’s Customer Success Management team for Data & AI. I support projects that design and deploy Generative and Agentic AI use cases, translating complex capabilities into user-centred, business-oriented solutions.",
@@ -274,20 +136,26 @@ export default function App() {
     ]
   };
 
+export default function App() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto mb-4 flex justify-end">
-        <Button 
-          onClick={handleDownloadPDF}
-          disabled={isDownloading}
-          className="gap-2"
-        >
-          <Download className="w-4 h-4" />
-          {isDownloading ? 'Generating PDF...' : 'Download as PDF'}
+        <Button asChild className="gap-2">
+          <PDFDownloadLink
+            document={<CVPDFDocument data={cvData} />}
+            fileName="CV_Daniel_Barber.pdf"
+          >
+            {({ loading }) => (
+              <>
+                <Download className="w-4 h-4" />
+                {loading ? 'Generating PDF...' : 'Download as PDF'}
+              </>
+            )}
+          </PDFDownloadLink>
         </Button>
       </div>
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-        <div ref={cvRef} className="p-12">
+        <div className="p-12">
           <CVHeader {...cvData.profile} />
           
           <CVSection title="Professional Summary">
