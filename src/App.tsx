@@ -8,6 +8,7 @@ import { VolunteerItem } from '../components/VolunteerItem';
 import { Button } from '../components/ui/button';
 import { Download } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import { toPng } from 'html-to-image';
 import { PDFDocument } from 'pdf-lib';
 import profileImage from './assets/daniel.jpg?inline';
@@ -144,6 +145,44 @@ const inlineCssBackgrounds = async (root: HTMLElement) => {
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const handlePrint = useReactToPrint({
+    contentRef: cvRef,
+    documentTitle: 'CV_Daniel_Barber',
+    preserveAfterPrint: false,
+  });
+
+  const prepareForPrint = () => {
+    const el = cvRef.current;
+    if (!el) return;
+
+    const A4_HEIGHT_PX = 1122;
+    const scale = Math.min(1, A4_HEIGHT_PX / el.scrollHeight);
+    el.style.transformOrigin = 'top left';
+    el.style.transform = `scale(${scale})`;
+    el.style.height = `${el.scrollHeight * scale}px`;
+  };
+
+  const cleanupAfterPrint = () => {
+    const el = cvRef.current;
+    if (!el) return;
+
+    el.style.transform = '';
+    el.style.height = '';
+    el.style.transformOrigin = '';
+  };
+
+  const onPrintClick = async () => {
+    if (!handlePrint || !cvRef.current) {
+      return;
+    }
+
+    prepareForPrint();
+    try {
+      await Promise.resolve(handlePrint());
+    } finally {
+      cleanupAfterPrint();
+    }
+  };
 
   const handleDownloadPDF = async () => {
     const element = cvRef.current;
@@ -459,18 +498,22 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto mb-4 flex justify-end">
-        <Button 
+      <div className="max-w-4xl mx-auto mb-4 flex justify-end gap-3 flex-wrap">
+        <Button onClick={onPrintClick} className="gap-2">
+          <Download className="w-4 h-4" />
+          Print as PDF (text)
+        </Button>
+        <Button
           onClick={handleDownloadPDF}
           disabled={isDownloading}
           className="gap-2"
         >
           <Download className="w-4 h-4" />
-          {isDownloading ? 'Generating PDF...' : 'Download as PDF'}
+          {isDownloading ? 'Generating PDF...' : 'Download (image PDF)'}
         </Button>
       </div>
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-        <div ref={cvRef} className="p-12">
+        <div ref={cvRef} className="cv-sheet p-12">
           <CVHeader {...cvData.profile} />
           
           <CVSection title="Professional Summary">
