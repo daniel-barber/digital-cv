@@ -9,7 +9,7 @@ interface VolunteerItemProps {
 
 export function VolunteerItem({ organization, role, period, description }: VolunteerItemProps) {
   return (
-    <div className="mb-8 last:mb-0">
+    <div className="mb-8 last:mb-0 avoid-break">
       <div className="mb-3">
         <h3 className="text-gray-900 mb-1">{role}</h3>
         <div className="flex flex-wrap items-center gap-2 text-gray-700">
