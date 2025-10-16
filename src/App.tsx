@@ -336,7 +336,7 @@ export default function App() {
   const cvData = {
     profile: {
       name: "Daniel Barber",
-      title: "Bachelor@IBM • Customer Success Management",
+      title: "Bachelor@IBM • Customer Success • Data & AI",
       email: "daniel_barber23@hotmail.com",
       phone: "+41 79 257 55 74",
       location: "Baden AG, Switzerland",
@@ -353,7 +353,7 @@ export default function App() {
         period: "Sep 2024 - Present",
           description: [
               "Contribute to client projects to design and deploy Generative and Agentic AI use cases built on watsonx.",
-              "Assist in deployment reporting and forcasting to support strategic planning.",
+              "Assist in deployment reporting and forecasting to support strategic planning.",
               "Prepare documentation, presentations and client success materials highlighting value realization and project progress.",
               "Coordinate communication between Customer Success, Technical Sales and Client Engineering to ensure smooth delivery and knowledge alignment.",
               "Lead the promotional team of the watsonx Agentic AI Challenge Switzerland, a university program enabling students to co-develop real-world AI use cases from Swiss companies."
