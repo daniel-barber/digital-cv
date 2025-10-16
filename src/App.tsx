@@ -9,7 +9,7 @@ import { Button } from '../components/ui/button';
 import { Download, ArrowUpRight } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { toPng } from 'html-to-image';
-import { PDFDocument, PDFHexString, PDFName } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFString } from 'pdf-lib';
 import profileImage from './assets/daniel.jpg?inline';
 
 
@@ -331,7 +331,7 @@ export default function App() {
             A: pdfDoc.context.obj({
               Type: PDFName.of('Action'),
               S: PDFName.of('URI'),
-              URI: PDFHexString.fromText(href),
+              URI: PDFString.of(href),
             }),
           });
 
@@ -533,7 +533,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto mb-4 flex justify-end">
-        <Button 
+        <Button
           onClick={handleDownloadPDF}
           disabled={isDownloading}
           className="gap-2"
@@ -544,11 +544,11 @@ export default function App() {
       </div>
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
         <div ref={cvRef} className="relative p-12">
-          <div className="cv-export-only mb-8 w-full justify-end">
+          <div className="cv-export-only absolute right-12 top-12 z-20">
             <Button
               asChild
               variant="outline"
-              className="gap-2 rounded-full border-blue-200 bg-white/90 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-white"
+              className="flex items-center gap-2 rounded-full border-blue-200 bg-white/90 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-white"
             >
               <a
                 href="https://daniel-barber.github.io/digital-cv/"
@@ -561,7 +561,7 @@ export default function App() {
             </Button>
           </div>
           <CVHeader {...cvData.profile} />
-          
+
           <CVSection title="Professional Summary">
             <p className="text-gray-700 leading-relaxed">{cvData.summary}</p>
           </CVSection>
