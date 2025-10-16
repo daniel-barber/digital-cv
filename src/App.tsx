@@ -37,6 +37,59 @@ const waitForImageReady = async (img: HTMLImageElement) => {
   });
 };
 
+const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
+
+const toAbsoluteUrl = (value: string) => {
+  try {
+    return new URL(value, window.location.href).href;
+  } catch (error) {
+    return value;
+  }
+};
+
+const proxyImageUrl = (absoluteUrl: string) => {
+  const withoutProtocol = absoluteUrl.replace(/^https?:\/\//i, '');
+  return `https://images.weserv.nl/?url=${encodeURIComponent(withoutProtocol)}`;
+};
+
+const fetchImageAsDataUrl = async (url: string) => {
+  const attempt = async (targetUrl: string) => {
+    const response = await fetch(targetUrl, {
+      mode: 'cors',
+      credentials: 'omit',
+      cache: 'no-store',
+      referrerPolicy: 'no-referrer',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image resource: ${response.status} ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  try {
+    return await attempt(url);
+  } catch (error) {
+    if (isHttpUrl(url)) {
+      try {
+        return await attempt(proxyImageUrl(url));
+      } catch (proxyError) {
+        console.warn('Failed to proxy image for export', proxyError);
+      }
+    }
+
+    throw error;
+  }
+};
+
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -55,7 +108,7 @@ export default function App() {
       originalSrcAttr: string | null;
       originalSrcset: string | null;
       originalSizes: string | null;
-      dataUrl: string;
+      originalLoading: string | null;
     }> = [];
 
     try {
@@ -70,74 +123,39 @@ export default function App() {
           continue;
         }
 
+        const originalSrcAttr = img.getAttribute('src');
+        const originalSrcset = img.getAttribute('srcset');
+        const originalSizes = img.getAttribute('sizes');
         const originalLoading = img.getAttribute('loading');
+
         if (originalLoading !== 'eager') {
-          img.setAttribute('data-export-original-loading', originalLoading ?? '');
           img.setAttribute('loading', 'eager');
         }
 
-        const imgUrl = img.currentSrc || img.src;
+        const absoluteUrl = toAbsoluteUrl(img.currentSrc || img.src);
 
-        // Fetch the image as a blob and convert to data URL
         try {
-          const response = await fetch(imgUrl, {
-            mode: 'cors',
-            credentials: 'omit',
-            cache: 'no-store',
-          });
-          const blob = await response.blob();
-          const dataUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
+          const dataUrl = await fetchImageAsDataUrl(absoluteUrl);
 
           imageReplacements.push({
             img,
-            originalSrcAttr: img.getAttribute('src'),
-            originalSrcset: img.getAttribute('srcset'),
-            originalSizes: img.getAttribute('sizes'),
-            dataUrl,
+            originalSrcAttr,
+            originalSrcset,
+            originalSizes,
+            originalLoading,
           });
 
-          // Replace the src with data URL
-          img.setAttribute('data-export-inline-src', dataUrl);
-          img.setAttribute('src', dataUrl);
           img.removeAttribute('srcset');
           img.removeAttribute('sizes');
           img.src = dataUrl;
           await waitForImageReady(img);
         } catch (fetchError) {
-          console.warn('Failed to fetch image, trying canvas method:', fetchError);
+          console.warn('Failed to inline image for export', fetchError);
 
-          // Fallback: try canvas method (only works if image has CORS headers)
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0);
-              const dataUrl = canvas.toDataURL('image/png');
-
-              imageReplacements.push({
-                img,
-                originalSrcAttr: img.getAttribute('src'),
-                originalSrcset: img.getAttribute('srcset'),
-                originalSizes: img.getAttribute('sizes'),
-                dataUrl,
-              });
-
-              img.setAttribute('data-export-inline-src', dataUrl);
-              img.setAttribute('src', dataUrl);
-              img.removeAttribute('srcset');
-              img.removeAttribute('sizes');
-              img.src = dataUrl;
-              await waitForImageReady(img);
-            }
-          } catch (canvasError) {
-            console.warn('Both fetch and canvas methods failed for image:', img.src);
+          if (originalLoading === null) {
+            img.removeAttribute('loading');
+          } else {
+            img.setAttribute('loading', originalLoading);
           }
         }
       }
@@ -151,10 +169,16 @@ export default function App() {
       // Rasterize to PNG at 2x resolution for crisp output
       const dataUrl = await toPng(element, {
         pixelRatio: 2,
-        cacheBust: false,
+        cacheBust: true,
         backgroundColor: '#ffffff',
         width: pxW,
         height: pxH,
+        fetchRequestInit: {
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'no-store',
+          referrerPolicy: 'no-referrer',
+        },
       });
 
       // Fetch the image data
@@ -197,11 +221,7 @@ export default function App() {
     } finally {
       htmlRoot.classList.remove('cv-exporting');
 
-      for (const { img, originalSrcAttr, originalSrcset, originalSizes } of imageReplacements) {
-        if (img.hasAttribute('data-export-inline-src')) {
-          img.removeAttribute('data-export-inline-src');
-        }
-
+      for (const { img, originalSrcAttr, originalSrcset, originalSizes, originalLoading } of imageReplacements) {
         if (originalSrcAttr !== null) {
           img.setAttribute('src', originalSrcAttr);
           if (img.src !== originalSrcAttr) {
@@ -223,14 +243,10 @@ export default function App() {
           img.removeAttribute('sizes');
         }
 
-        if (img.hasAttribute('data-export-original-loading')) {
-          const value = img.getAttribute('data-export-original-loading') ?? '';
-          if (value) {
-            img.setAttribute('loading', value);
-          } else {
-            img.removeAttribute('loading');
-          }
-          img.removeAttribute('data-export-original-loading');
+        if (originalLoading !== null) {
+          img.setAttribute('loading', originalLoading);
+        } else {
+          img.removeAttribute('loading');
         }
       }
 
