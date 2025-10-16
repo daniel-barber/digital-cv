@@ -75,21 +75,36 @@ export function CVHeader({
           
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             {linkedin && (
-              <a href={linkedin} className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors">
+              <a
+                href={linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
+              >
                 <Linkedin className="w-4 h-4 flex-shrink-0" />
                 <span className="text-sm">LinkedIn</span>
               </a>
             )}
             {github && (
-              <a href={github} className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors">
+              <a
+                href={github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+              >
                 <Github className="w-4 h-4 flex-shrink-0" />
                 <span className="text-sm">GitHub</span>
               </a>
             )}
             {website && (
-              <a href={website} className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors">
+              <a
+                href={website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+              >
                 <Globe className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">Portfolio</span>
+                <span className="text-sm">View Live CV</span>
               </a>
             )}
           </div>
