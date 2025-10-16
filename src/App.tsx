@@ -294,7 +294,15 @@ export default function App() {
       
       // Create PDF with custom page size
       const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage([ptW, ptH]);
+        pdfDoc.setTitle(`${cvData.profile.name} — CV`);
+        pdfDoc.setAuthor(`${cvData.profile.name}`);
+        pdfDoc.setSubject("Curriculum Vitae");
+        pdfDoc.setCreator("React/Vite + pdf-lib");
+        pdfDoc.setProducer("pdf-lib");
+        pdfDoc.setCreationDate(new Date());
+        pdfDoc.setModificationDate(new Date());
+
+        const page = pdfDoc.addPage([ptW, ptH]);
       
       // Embed PNG and draw it
       const pngImage = await pdfDoc.embedPng(imgArrayBuffer);
