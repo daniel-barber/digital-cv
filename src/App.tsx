@@ -415,15 +415,15 @@ export default function App() {
     skills: [
         {
             category: "Professional & Personal",
-            skills: ["Analytical Thinking", "Stakeholder Communication", "Creativity", "Curiosity", "Adaptability", "Continuous Learning", "Problem Solving", "Empathy"]
+            skills: ["Analytical Thinking", "Stakeholder Management", "Creativity", "Curiosity", "Adaptability", "Structured Thinking", "Problem Solving", "Empathy"]
         },
         {
         category: "Technical Skills",
-        skills: ["Java", "Python", "Kotlin", "React", "TypeScript", "Next.js", "Vue.js", "Node.js", "Express", "PostgreSQL", "MongoDB", "HTML/CSS", "Tailwind CSS", "Redux", "watsonx.ai", "watsonx Orchestrate", "Prompt Engineering", "Data Visualization", "REST APIs", "Git", "Docker"]
+        skills: ["Java", "Python", "Kotlin", "React", "TypeScript", "Next.js", "HTML / CSS", "Tailwind CSS", "Git", "Docker", "SQL", "MongoDB",  "Streamlit", "watsonx.ai", "watsonx Orchestrate", "Prompt Engineering", "Data Visualization"]
       },
       {
         category: "Design & Process",
-        skills: ["Design Thinking", "Requirements Engineering", "Agile / Scrum", "User Research", "Figma", "Journey Mapping", "UI/UX Design", "Prototyping" ]
+        skills: ["Design Thinking", "Requirements Engineering", "Agile / Scrum", "User Research", "Journey Mapping", "UI/UX Design", "Figma", "Prototyping", "Workshop Facilitation" ]
       },
     ],
     languages: [
