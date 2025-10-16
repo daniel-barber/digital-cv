@@ -89,7 +89,7 @@ export function CVHeader({
                   href="https://daniel-barber.github.io/digital-cv/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="cv-export-only flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 transition-colors"
+                  className="cv-export-only flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 transition-colors ml-4"
                 >
                   <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
                   View Live CV
