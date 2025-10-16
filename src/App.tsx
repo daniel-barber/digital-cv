@@ -47,6 +47,9 @@ export default function App() {
 
     setIsDownloading(true);
 
+    const htmlRoot = document.documentElement;
+    htmlRoot.classList.add('cv-exporting');
+
     const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
 
     try {
@@ -61,9 +64,15 @@ export default function App() {
           continue;
         }
 
+        const imgUrl = img.currentSrc || img.src;
+
         // Fetch the image as a blob and convert to data URL
         try {
-          const response = await fetch(img.src, { mode: 'cors' });
+          const response = await fetch(imgUrl, {
+            mode: 'cors',
+            credentials: 'omit',
+            cache: 'no-store',
+          });
           const blob = await response.blob();
           const dataUrl = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
@@ -80,6 +89,7 @@ export default function App() {
 
           // Replace the src with data URL
           img.src = dataUrl;
+          img.setAttribute('data-export-inline-src', dataUrl);
           await waitForImageReady(img);
         } catch (fetchError) {
           console.warn('Failed to fetch image, trying canvas method:', fetchError);
@@ -101,6 +111,7 @@ export default function App() {
               });
 
               img.src = dataUrl;
+              img.setAttribute('data-export-inline-src', dataUrl);
               await waitForImageReady(img);
             }
           } catch (canvasError) {
@@ -162,9 +173,14 @@ export default function App() {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF: ' + (error as Error).message);
     } finally {
+      htmlRoot.classList.remove('cv-exporting');
+
       for (const { img, originalSrc } of imageReplacements) {
         if (img.src !== originalSrc) {
           img.src = originalSrc;
+        }
+        if (img.hasAttribute('data-export-inline-src')) {
+          img.removeAttribute('data-export-inline-src');
         }
       }
 
