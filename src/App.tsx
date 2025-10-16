@@ -10,7 +10,7 @@ import { Download } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { toPng } from 'html-to-image';
 import { PDFDocument } from 'pdf-lib';
-import profileImage from "./assets/daniel.jpg";
+import profileImage from './assets/daniel.jpg?inline';
 
 
 const waitForImageReady = async (img: HTMLImageElement) => {
@@ -55,8 +55,6 @@ const proxyImageUrl = (absoluteUrl: string) => {
 const fetchImageAsDataUrl = async (url: string) => {
   const attempt = async (targetUrl: string) => {
     const response = await fetch(targetUrl, {
-      mode: 'cors',
-      credentials: 'omit',
       cache: 'no-store',
       referrerPolicy: 'no-referrer',
     });
@@ -90,6 +88,59 @@ const fetchImageAsDataUrl = async (url: string) => {
   }
 };
 
+const inlineCssBackgrounds = async (root: HTMLElement) => {
+  const replacements: Array<{ element: HTMLElement; originalBackgroundImage: string }> = [];
+  const elements: HTMLElement[] = [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))];
+
+  for (const element of elements) {
+    const computed = window.getComputedStyle(element);
+    const backgroundImage = computed.backgroundImage;
+
+    if (!backgroundImage || backgroundImage === 'none') {
+      continue;
+    }
+
+    const matches = Array.from(backgroundImage.matchAll(/url\((['"]?)([^'"\)]+)\1\)/g));
+
+    if (matches.length === 0) {
+      continue;
+    }
+
+    let updatedBackgroundImage = backgroundImage;
+    let didReplace = false;
+
+    for (const match of matches) {
+      const token = match[0];
+      const url = match[2];
+
+      if (!url || url.startsWith('data:') || url.startsWith('blob:')) {
+        continue;
+      }
+
+      const absoluteUrl = toAbsoluteUrl(url);
+
+      try {
+        const dataUrl = await fetchImageAsDataUrl(absoluteUrl);
+        updatedBackgroundImage = updatedBackgroundImage.split(token).join(`url("${dataUrl}")`);
+        didReplace = true;
+      } catch (error) {
+        console.warn('Failed to inline background image for export', error);
+      }
+    }
+
+    if (didReplace) {
+      replacements.push({
+        element,
+        originalBackgroundImage: element.style.backgroundImage,
+      });
+
+      element.style.backgroundImage = updatedBackgroundImage;
+    }
+  }
+
+  return replacements;
+};
+
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -110,6 +161,8 @@ export default function App() {
       originalSizes: string | null;
       originalLoading: string | null;
     }> = [];
+
+    const backgroundReplacements: Array<{ element: HTMLElement; originalBackgroundImage: string }> = [];
 
     try {
       // Convert all external images to inline data URLs to bypass CORS
@@ -148,7 +201,16 @@ export default function App() {
           img.removeAttribute('srcset');
           img.removeAttribute('sizes');
           img.src = dataUrl;
-          await waitForImageReady(img);
+          if ('decode' in img) {
+            try {
+              await img.decode();
+            } catch (decodeError) {
+              console.warn('Image decode failed after inlining, waiting for load event instead', decodeError);
+              await waitForImageReady(img);
+            }
+          } else {
+            await waitForImageReady(img);
+          }
         } catch (fetchError) {
           console.warn('Failed to inline image for export', fetchError);
 
@@ -163,8 +225,10 @@ export default function App() {
       // Give browser time to update the images
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      const pxW = element.offsetWidth;
-      const pxH = element.offsetHeight;
+      backgroundReplacements.push(...await inlineCssBackgrounds(element));
+
+      const pxW = element.scrollWidth;
+      const pxH = element.scrollHeight;
 
       // Rasterize to PNG at 2x resolution for crisp output
       const dataUrl = await toPng(element, {
@@ -220,6 +284,14 @@ export default function App() {
       alert('Failed to generate PDF: ' + (error as Error).message);
     } finally {
       htmlRoot.classList.remove('cv-exporting');
+
+      for (const { element: target, originalBackgroundImage } of backgroundReplacements) {
+        if (originalBackgroundImage) {
+          target.style.backgroundImage = originalBackgroundImage;
+        } else {
+          target.style.removeProperty('background-image');
+        }
+      }
 
       for (const { img, originalSrcAttr, originalSrcset, originalSizes, originalLoading } of imageReplacements) {
         if (originalSrcAttr !== null) {
