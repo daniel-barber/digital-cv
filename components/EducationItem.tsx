@@ -10,7 +10,7 @@ interface EducationItemProps {
 
 export function EducationItem({ school, degree, field, period, details }: EducationItemProps) {
   return (
-    <div className="mb-5 last:mb-0">
+    <div className="mb-5 last:mb-0 avoid-break">
       <div className="mb-2">
         <h3 className="text-gray-900 mb-1">
           {field ? `${degree} in ${field}` : degree}

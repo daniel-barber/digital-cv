@@ -25,28 +25,19 @@ export function CVHeader({
   profileImage,
 }: CVHeaderProps) {
   return (
-    <div className="relative pb-10 mb-8">
+    <div className="relative pb-10 mb-8 avoid-break">
       {/* Gradient background accent */}
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 -mx-12 -mt-12 rounded-t-lg -z-10" />
 
       <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start pt-8">
-        <ImageWithFallback
-          src={profileImage}
-          alt={name}
-          width={176}
-          height={176}
-          style={{
-            width: 176,
-            height: 176,
-            borderRadius: '9999px',
-            objectFit: 'cover',
-            clipPath: 'circle(50% at 50% 50%)',
-            WebkitMaskImage: 'radial-gradient(circle at center, #000 99%, transparent 100%)',
-            maskImage: 'radial-gradient(circle at center, #000 99%, transparent 100%)',
-          }}
-          className="shadow-xl ring-4 ring-white flex-shrink-0"
-        />
-        
+        <div className="w-32 h-32 md:w-44 md:h-44 rounded-full overflow-hidden flex-shrink-0 shadow-xl ring-4 ring-white">
+          <ImageWithFallback
+            src={profileImage}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
         <div className="flex-1 pt-2">
           <h1 className="text-gray-900 mb-4 text-5xl md:text-6xl">{name}</h1>
           <p className="text-gray-600 mb-6 text-xl md:text-2xl">{title}</p>

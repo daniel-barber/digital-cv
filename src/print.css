@@ -1,0 +1,59 @@
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  html,
+  body {
+    height: auto;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  .cv-sheet {
+    width: 210mm;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 0;
+    transform: none !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+
+  .cv-sheet :where(h1, h2, h3) {
+    line-height: 1.1;
+  }
+
+  .cv-sheet {
+    line-height: 1.35;
+  }
+
+  .cv-sheet p,
+  .cv-sheet li {
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    orphans: 2;
+    widows: 2;
+  }
+
+  .avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-break {
+    break-after: page;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+}

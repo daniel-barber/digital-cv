@@ -1,3 +1,9 @@
+import { useState, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import { Download, Printer } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import { PDFDocument } from 'pdf-lib';
+
 import { CVHeader } from '../components/CVHeader';
 import { CVSection } from '../components/CVSection';
 import { ExperienceItem } from '../components/ExperienceItem';
@@ -6,10 +12,6 @@ import { SkillCategory } from '../components/SkillCategory';
 import { LanguageItem } from '../components/LanguageItem';
 import { VolunteerItem } from '../components/VolunteerItem';
 import { Button } from '../components/ui/button';
-import { Download } from 'lucide-react';
-import { useState, useRef } from 'react';
-import { toPng } from 'html-to-image';
-import { PDFDocument } from 'pdf-lib';
 import profileImage from './assets/daniel.jpg?inline';
 
 
@@ -144,6 +146,12 @@ const inlineCssBackgrounds = async (root: HTMLElement) => {
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const handlePrint = useReactToPrint({
+    contentRef: cvRef,
+    documentTitle: 'CV_Daniel_Barber',
+    preserveAfterPrint: false,
+  });
 
   const handleDownloadPDF = async () => {
     const element = cvRef.current;
@@ -475,53 +483,63 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto mb-4 flex justify-end">
-        <Button 
+      <div className="max-w-4xl mx-auto mb-4 flex flex-wrap justify-end gap-3 print-hidden">
+        <Button onClick={() => handlePrint?.()} className="gap-2">
+          <Printer className="w-4 h-4" />
+          Print as PDF (text)
+        </Button>
+        <Button
           onClick={handleDownloadPDF}
           disabled={isDownloading}
           className="gap-2"
         >
           <Download className="w-4 h-4" />
-          {isDownloading ? 'Generating PDF...' : 'Download as PDF'}
+          {isDownloading ? 'Generating PDF...' : 'Download image PDF'}
         </Button>
       </div>
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-        <div ref={cvRef} className="p-12">
-          <CVHeader {...cvData.profile} />
-          
-          <CVSection title="Professional Summary">
-            <p className="text-gray-700 leading-relaxed">{cvData.summary}</p>
-          </CVSection>
+      <div className="max-w-4xl mx-auto">
+        <div ref={cvRef} className="cv-sheet bg-white shadow-lg rounded-lg">
+          <div className="p-12">
+            <CVHeader {...cvData.profile} />
 
-          <CVSection title="Work Experience">
-            {cvData.experience.map((exp, index) => (
-              <ExperienceItem key={index} {...exp} />
-            ))}
-          </CVSection>
+            <CVSection title="Professional Summary" className="avoid-break">
+              <p className="text-gray-700 leading-relaxed">{cvData.summary}</p>
+            </CVSection>
 
-          <CVSection title="Education">
-            {cvData.education.map((edu, index) => (
-              <EducationItem key={index} {...edu} />
-            ))}
-          </CVSection>
+            <CVSection title="Work Experience">
+              {cvData.experience.map((exp, index) => (
+                <ExperienceItem key={index} {...exp} />
+              ))}
+            </CVSection>
+          </div>
 
-          <CVSection title="Skills & Expertise">
-            {cvData.skills.map((skillCategory, index) => (
-              <SkillCategory key={index} {...skillCategory} />
-            ))}
-          </CVSection>
+          <div className="print-break" />
 
-          <CVSection title="Languages">
-            {cvData.languages.map((lang, index) => (
-              <LanguageItem key={index} {...lang} />
-            ))}
-          </CVSection>
+          <div className="p-12">
+            <CVSection title="Education" className="avoid-break">
+              {cvData.education.map((edu, index) => (
+                <EducationItem key={index} {...edu} />
+              ))}
+            </CVSection>
 
-          <CVSection title="Volunteer Work">
-            {cvData.volunteer.map((vol, index) => (
-              <VolunteerItem key={index} {...vol} />
-            ))}
-          </CVSection>
+            <CVSection title="Skills & Expertise">
+              {cvData.skills.map((skillCategory, index) => (
+                <SkillCategory key={index} {...skillCategory} />
+              ))}
+            </CVSection>
+
+            <CVSection title="Languages" className="avoid-break">
+              {cvData.languages.map((lang, index) => (
+                <LanguageItem key={index} {...lang} />
+              ))}
+            </CVSection>
+
+            <CVSection title="Volunteer Work" className="avoid-break">
+              {cvData.volunteer.map((vol, index) => (
+                <VolunteerItem key={index} {...vol} />
+              ))}
+            </CVSection>
+          </div>
         </div>
       </div>
     </div>

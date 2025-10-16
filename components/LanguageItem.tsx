@@ -8,7 +8,7 @@ interface LanguageItemProps {
 
 export function LanguageItem({ language, proficiency, level }: LanguageItemProps) {
   return (
-    <div className="mb-8 last:mb-0">
+    <div className="mb-8 last:mb-0 avoid-break">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Languages className="w-4 h-4 text-blue-600" />

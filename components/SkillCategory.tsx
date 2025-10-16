@@ -13,7 +13,7 @@ export function SkillCategory({ category, skills }: SkillCategoryProps) {
     const gradient = categoryGradients[category] || 'from-gray-400 to-gray-600';
 
     return (
-        <div className="mb-10 last:mb-0">
+        <div className="mb-10 last:mb-0 avoid-break">
             <div className={`bg-gradient-to-r ${gradient} text-white px-4 py-2 rounded-lg mb-5 inline-block`}>
                 <h3 className="text-white text-sm uppercase tracking-wide">{category}</h3>
             </div>
