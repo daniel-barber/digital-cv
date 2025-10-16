@@ -1,5 +1,4 @@
-import { Mail, Phone, MapPin, Linkedin, Github, Globe, ArrowUpRight } from 'lucide-react';
-import { Button } from './ui/button';
+import { Mail, Phone, MapPin, Linkedin, Github, Globe } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface CVHeaderProps {
@@ -76,7 +75,7 @@ export function CVHeader({
           
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             {linkedin && (
-              <>
+              <div className="flex items-center gap-4">
                 <a
                   href={linkedin}
                   target="_blank"
@@ -86,23 +85,15 @@ export function CVHeader({
                   <Linkedin className="w-4 h-4 flex-shrink-0" />
                   <span className="text-sm">LinkedIn</span>
                 </a>
-                <div className="cv-export-only w-full">
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="mt-2 inline-flex items-center gap-2 rounded-full border-blue-200 bg-white/90 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-white"
-                  >
-                    <a
-                      href="https://daniel-barber.github.io/digital-cv/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View Live CV
-                      <ArrowUpRight className="w-4 h-4" />
-                    </a>
-                  </Button>
-                </div>
-              </>
+                <a
+                  href="https://daniel-barber.github.io/digital-cv/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cv-export-only text-sm text-gray-700 hover:text-gray-900 transition-colors"
+                >
+                  View Live CV
+                </a>
+              </div>
             )}
             {github && (
               <a
