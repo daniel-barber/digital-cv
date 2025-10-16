@@ -9,7 +9,7 @@ import { Button } from '../components/ui/button';
 import { Download, ArrowUpRight } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { toPng } from 'html-to-image';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFHexString, PDFName } from 'pdf-lib';
 import profileImage from './assets/daniel.jpg?inline';
 
 
@@ -237,6 +237,45 @@ export default function App() {
       const pxW = element.scrollWidth;
       const pxH = element.scrollHeight;
 
+      const linkAnnotations: Array<{
+        href: string;
+        rect: { x: number; y: number; width: number; height: number };
+      }> = [];
+
+      const elementRect = element.getBoundingClientRect();
+      const anchors = Array.from(element.querySelectorAll<HTMLAnchorElement>('a[href]'));
+
+      for (const anchor of anchors) {
+        const rawHref = anchor.getAttribute('href');
+
+        if (!rawHref) {
+          continue;
+        }
+
+        const normalizedHref = rawHref.trim();
+
+        if (!normalizedHref || normalizedHref.startsWith('#') || normalizedHref.toLowerCase().startsWith('javascript:')) {
+          continue;
+        }
+
+        const href = anchor.href || normalizedHref;
+        const rect = anchor.getBoundingClientRect();
+
+        if (rect.width === 0 || rect.height === 0) {
+          continue;
+        }
+
+        linkAnnotations.push({
+          href,
+          rect: {
+            x: rect.left - elementRect.left,
+            y: rect.top - elementRect.top,
+            width: rect.width,
+            height: rect.height,
+          },
+        });
+      }
+
       // Rasterize to PNG at 2x resolution for crisp output
       const dataUrl = await toPng(element, {
         pixelRatio: 2,
@@ -265,6 +304,40 @@ export default function App() {
         width: ptW,
         height: ptH,
       });
+
+      if (linkAnnotations.length > 0) {
+        const scaleX = ptW / pxW;
+        const scaleY = ptH / pxH;
+        let annots = page.node.Annots();
+
+        if (!annots) {
+          annots = pdfDoc.context.obj([]);
+          page.node.set(PDFName.of('Annots'), annots);
+        }
+
+        const annotationsArray = annots!;
+
+        for (const { href, rect } of linkAnnotations) {
+          const width = rect.width * scaleX;
+          const height = rect.height * scaleY;
+          const x = rect.x * scaleX;
+          const y = ptH - rect.y * scaleY - height;
+
+          const annotation = pdfDoc.context.obj({
+            Type: PDFName.of('Annot'),
+            Subtype: PDFName.of('Link'),
+            Rect: pdfDoc.context.obj([x, y, x + width, y + height]),
+            Border: pdfDoc.context.obj([0, 0, 0]),
+            A: pdfDoc.context.obj({
+              Type: PDFName.of('Action'),
+              S: PDFName.of('URI'),
+              URI: PDFHexString.fromText(href),
+            }),
+          });
+
+          annotationsArray.push(pdfDoc.context.register(annotation));
+        }
+      }
       
       // Save and download
       const pdfBytes = await pdfDoc.save();
@@ -470,19 +543,19 @@ export default function App() {
         </Button>
       </div>
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-        <div ref={cvRef} className="p-12">
-          <div className="flex justify-end mb-8">
+        <div ref={cvRef} className="relative p-12">
+          <div className="cv-export-only mb-8 w-full justify-end">
             <Button
               asChild
               variant="outline"
-              className="gap-2"
+              className="gap-2 rounded-full border-blue-200 bg-white/90 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-white"
             >
               <a
                 href="https://daniel-barber.github.io/digital-cv/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Visit Live CV
+                View Live CV
                 <ArrowUpRight className="w-4 h-4" />
               </a>
             </Button>

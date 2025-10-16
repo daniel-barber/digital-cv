@@ -413,6 +413,14 @@
   }
 }
 
+.cv-export-only {
+  display: none;
+}
+
+.cv-exporting .cv-export-only {
+  display: flex;
+}
+
 @layer utilities {
   .absolute {
     position: absolute;
