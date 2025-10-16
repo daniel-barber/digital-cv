@@ -419,29 +419,30 @@ export default function App() {
       profileImage: profileImage,
     },
       summary:
-          "I am in my seventh semester of a BSc in Computer Science at FHNW (Design & Management). At IBM Switzerland, I work in the Customer Success Management team for Data & AI, supporting projects that design and deploy Generative and Agentic AI use cases to deliver measurable business value. With a background spanning marketing, UX, and technology, I focus on shaping AI solutions that are intuitive, impactful, and aligned with real user and business needs.",
+          "I am curently in my seventh semester of a Bachelor of Science in Computer Science program at FHNW with a major in Design & Management. At IBM Switzerland, I am on the Customer Success Management team for Data & AI. I support projects that design and deploy AI use cases to deliver measurable business value. Drawing from my background in marketing, UX, and technology, I develop solutions that are intuitive, impactful, and aligned with real user and business needs.",
       experience: [
       {
         company: "IBM Schweiz AG",
         position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
         period: "Sep 2024 - Present",
           description: [
-              "Support client projects to design and deploy Generative and Agentic AI use cases on IBM watsonx.",
-              "Assist with deployment reporting and forecasting to inform strategic planning.",
-              "Prepare documentation and client success materials that highlight value realization and progress.",
-              "Coordinate communication across teams to ensure smooth delivery and knowledge alignment.",
-              "Lead the promotional team for the watsonx Challenge Switzerland, a university program enabling students to solve AI use cases from Swiss companies.",
+              "Support client projects in designing and deploying Generative and Agentic AI use cases on IBM watsonx, bridging business goals with AI capabilities.",
+              "Assist with deployment reporting and forecasting to inform strategic planning and client success tracking.",
+              "Develop documentation and presentation materials that showcase value realization and progress to stakeholders.",
+              "Coordinate communication across teams to ensure alignment, smooth delivery, and knowledge sharing.",
+              "Lead the promotional team for watsonx Challenge Switzerland, a national university initiative empowering students to solve real-world AI challenges from Swiss companies."
           ]
+
       },
         {
             company: "Möbel Pfister AG",
             position: "Search Engine Advertising Manager",
             period: "Aug  2020 - Aug 2024",
             description: [
-                "Implemented and optimized search and shopping campaigns across Google and Bing.",
-                "Built data-driven dashboards and analyses in Google Looker Studio to inform strategic decisions.",
-                "Planned and monitored SEA budgets and supported cross-channel display & social activities.",
-                "Managed and optimized product feeds across sales channels."
+                "Implemented and continuously optimized search and shopping campaigns across Google and Bing, improving visibility and conversion performance.",
+                "Developed data-driven dashboards and analyses in Google Looker Studio to support strategic marketing and budget allocation decisions.",
+                "Planned, monitored, and reported SEA budgets while coordinating with cross-channel display and social media campaigns to ensure message alignment.",
+                "Managed and optimized product feeds across e-commerce sales channels, enhancing data quality and campaign efficiency."
             ]
         },
         {
@@ -449,9 +450,9 @@ export default function App() {
             position: "Mediamatiker EFZ (Apprenticeship)",
             period: "Aug 2016 - Jul 2020",
             description: [
-                "Org-IT: first-level service desk; assisted on internal IT projects.",
-                "eCommerce: implemented landing pages, maintained product data, supported customer-card workflows and contributed concepts for new shop features.",
-                "Marketing: produced newsletters and print assets, coordinated social content updates."
+                "Provided first-level IT support and contributed to internal digitalization projects within the Org-IT department.",
+                "Supported the eCommerce team by implementing landing pages, maintaining product data, and assisting in customer-card workflows and shop feature concepts.",
+                "Created marketing materials including newsletters, print assets, and social media content, ensuring consistent brand communication across channels."
             ]
         },
         {
@@ -459,7 +460,7 @@ export default function App() {
             position: "Koch EFZ (Apprenticeship)",
             period: "Aug 2012 - Jul 2015",
             description: [
-                "Completed a culinary apprenticeship, developing precision, teamwork, and time management in a high-pressure kitchen environment."
+                "Completed a culinary apprenticeship, developing strong precision, teamwork, and time management skills in a fast-paced, high-pressure environment."
             ]
         }
     ],
@@ -467,21 +468,21 @@ export default function App() {
       {
         school: "FHNW University of Applied Sciences, Brugg-Windisch",
         degree: "Bachelor of Science",
-        field: "Computer Science",
+        field: "Computer Science (Design & Management)",
         period: "2022 - 2026",
-        details: "Current Grade Average: 5.35"
+        details: "Current Grade Average: 5.35 / 6.0 (Grade A Student, Top 10%)"
       },
       {
         school: "HKV Aarau",
         degree: "Mediamatiker EFZ with Vocational Baccalaureate",
         period: "2016 - 2020",
-        details: "Final Grade: 5.7"
+        details: "Final Grade: 5.7 / 6.0"
       },
       {
         school: "Berufsschule Aarau",
         degree: "Koch EFZ",
         period: "2012 - 2015",
-        details: "Final Grade: 5.2"
+        details: "Final Grade: 5.2 / 6.0"
       },
       
     ],
