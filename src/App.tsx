@@ -160,6 +160,7 @@ export default function App() {
       originalSrcset: string | null;
       originalSizes: string | null;
       originalLoading: string | null;
+      originalCrossOrigin: string | null;
     }> = [];
 
     const backgroundReplacements: Array<{ element: HTMLElement; originalBackgroundImage: string }> = [];
@@ -180,6 +181,7 @@ export default function App() {
         const originalSrcset = img.getAttribute('srcset');
         const originalSizes = img.getAttribute('sizes');
         const originalLoading = img.getAttribute('loading');
+        const originalCrossOrigin = img.getAttribute('crossorigin');
 
         if (originalLoading !== 'eager') {
           img.setAttribute('loading', 'eager');
@@ -196,6 +198,7 @@ export default function App() {
             originalSrcset,
             originalSizes,
             originalLoading,
+            originalCrossOrigin,
           });
 
           img.removeAttribute('srcset');
@@ -210,6 +213,10 @@ export default function App() {
             }
           } else {
             await waitForImageReady(img);
+          }
+
+          if (img.hasAttribute('crossorigin') && img.src.startsWith('data:')) {
+            img.removeAttribute('crossorigin');
           }
         } catch (fetchError) {
           console.warn('Failed to inline image for export', fetchError);
@@ -237,12 +244,6 @@ export default function App() {
         backgroundColor: '#ffffff',
         width: pxW,
         height: pxH,
-        fetchRequestInit: {
-          mode: 'cors',
-          credentials: 'omit',
-          cache: 'no-store',
-          referrerPolicy: 'no-referrer',
-        },
       });
 
       // Fetch the image data
@@ -293,7 +294,7 @@ export default function App() {
         }
       }
 
-      for (const { img, originalSrcAttr, originalSrcset, originalSizes, originalLoading } of imageReplacements) {
+      for (const { img, originalSrcAttr, originalSrcset, originalSizes, originalLoading, originalCrossOrigin } of imageReplacements) {
         if (originalSrcAttr !== null) {
           img.setAttribute('src', originalSrcAttr);
           if (img.src !== originalSrcAttr) {
@@ -319,6 +320,12 @@ export default function App() {
           img.setAttribute('loading', originalLoading);
         } else {
           img.removeAttribute('loading');
+        }
+
+        if (originalCrossOrigin !== null) {
+          img.setAttribute('crossorigin', originalCrossOrigin);
+        } else {
+          img.removeAttribute('crossorigin');
         }
       }
 

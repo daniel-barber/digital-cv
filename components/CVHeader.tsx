@@ -33,7 +33,18 @@ export function CVHeader({
         <ImageWithFallback
           src={profileImage}
           alt={name}
-          className="w-44 h-44 rounded-full object-cover shadow-xl ring-4 ring-white flex-shrink-0"
+          width={176}
+          height={176}
+          style={{
+            width: 176,
+            height: 176,
+            borderRadius: '9999px',
+            objectFit: 'cover',
+            clipPath: 'circle(50% at 50% 50%)',
+            WebkitMaskImage: 'radial-gradient(circle at center, #000 99%, transparent 100%)',
+            maskImage: 'radial-gradient(circle at center, #000 99%, transparent 100%)',
+          }}
+          className="shadow-xl ring-4 ring-white flex-shrink-0"
         />
         
         <div className="flex-1 pt-2">
