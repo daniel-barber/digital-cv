@@ -8,7 +8,7 @@ import { VolunteerItem } from '../components/VolunteerItem';
 import { Button } from '../components/ui/button';
 import { Download } from 'lucide-react';
 import { useState, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import { PDFDocument } from 'pdf-lib';
 import profileImage from "./assets/daniel.jpg";
 
@@ -37,31 +37,6 @@ const waitForImageReady = async (img: HTMLImageElement) => {
   });
 };
 
-const COLOR_FALLBACKS: Record<string, string> = {
-  '--color-red-500': '#ef4444',
-  '--color-orange-500': '#f97316',
-  '--color-green-500': '#22c55e',
-  '--color-emerald-500': '#10b981',
-  '--color-cyan-500': '#06b6d4',
-  '--color-blue-50': '#eff6ff',
-  '--color-blue-500': '#3b82f6',
-  '--color-blue-600': '#2563eb',
-  '--color-blue-700': '#1d4ed8',
-  '--color-indigo-50': '#eef2ff',
-  '--color-purple-50': '#faf5ff',
-  '--color-purple-500': '#a855f7',
-  '--color-pink-500': '#ec4899',
-  '--color-rose-500': '#f43f5e',
-  '--color-gray-50': '#f9fafb',
-  '--color-gray-100': '#f3f4f6',
-  '--color-gray-200': '#e5e7eb',
-  '--color-gray-400': '#9ca3af',
-  '--color-gray-500': '#6b7280',
-  '--color-gray-600': '#4b5563',
-  '--color-gray-700': '#374151',
-  '--color-gray-900': '#111827',
-};
-
 export default function App() {
   const cvRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -73,9 +48,6 @@ export default function App() {
     setIsDownloading(true);
 
     const imageReplacements: Array<{ img: HTMLImageElement; originalSrc: string; dataUrl: string }> = [];
-    const appliedColorFallbacks: Array<{ name: string; previous: string }> = [];
-    const colorSpaceOverrides: Array<{ style: CSSStyleDeclaration; property: string; previous: string; priority: string }> = [];
-    const styleSheetTextOverrides: Array<{ element: HTMLStyleElement; previous: string }> = [];
 
     try {
       // Convert all external images to inline data URLs to bypass CORS
@@ -140,110 +112,24 @@ export default function App() {
       // Give browser time to update the images
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      for (const [name, fallback] of Object.entries(COLOR_FALLBACKS)) {
-        const previous = element.style.getPropertyValue(name);
-        appliedColorFallbacks.push({ name, previous });
-        element.style.setProperty(name, fallback);
-      }
-
-      const isStyleRule = (rule: CSSRule): rule is CSSStyleRule => {
-        return 'style' in rule;
-      };
-
-      const isGroupingRule = (rule: CSSRule): rule is CSSGroupingRule => {
-        return 'cssRules' in rule;
-      };
-
-      const patchColorSpace = (style: CSSStyleDeclaration) => {
-        for (let i = 0; i < style.length; i += 1) {
-          const property = style.item(i);
-          if (!property) continue;
-
-          const value = style.getPropertyValue(property);
-          if (!value) continue;
-
-          if (value.match(/okl[ab]/i)) {
-            const priority = style.getPropertyPriority(property);
-            const replacement = value
-              .replace(/in\s+oklab/gi, 'in srgb')
-              .replace(/in\s+oklch/gi, 'in srgb')
-              .replace(/oklab/gi, 'srgb')
-              .replace(/oklch/gi, 'srgb');
-            if (replacement !== value) {
-              colorSpaceOverrides.push({
-                style,
-                property,
-                previous: value,
-                priority,
-              });
-              style.setProperty(property, replacement, priority);
-            }
-          }
-        }
-      };
-
-      const traverseRules = (rules: CSSRuleList | undefined) => {
-        if (!rules) return;
-        for (let i = 0; i < rules.length; i += 1) {
-          const rule = rules[i];
-          if (!rule) continue;
-
-          if (isStyleRule(rule)) {
-            patchColorSpace(rule.style);
-          }
-
-          if (isGroupingRule(rule)) {
-            traverseRules(rule.cssRules);
-          }
-        }
-      };
-
-      for (const sheet of Array.from(document.styleSheets)) {
-        let rules: CSSRuleList | undefined;
-        try {
-          rules = sheet.cssRules;
-        } catch (sheetError) {
-          console.warn('Unable to access stylesheet rules for export fallback', sheetError);
-          continue;
-        }
-
-        const ownerNode = sheet.ownerNode;
-        if (ownerNode instanceof HTMLStyleElement) {
-          const previous = ownerNode.textContent ?? '';
-          const replacement = previous
-            .replace(/in\s+oklab/gi, 'in srgb')
-            .replace(/in\s+oklch/gi, 'in srgb')
-            .replace(/oklab/gi, 'srgb')
-            .replace(/oklch/gi, 'srgb');
-
-          if (replacement !== previous) {
-            styleSheetTextOverrides.push({ element: ownerNode, previous });
-            ownerNode.textContent = replacement;
-          }
-        }
-
-        traverseRules(rules);
-      }
+      const pxW = element.offsetWidth;
+      const pxH = element.offsetHeight;
 
       // Rasterize to PNG at 2x resolution for crisp output
-      const canvas = await html2canvas(element, {
-        scale: 2,
+      const dataUrl = await toPng(element, {
+        pixelRatio: 2,
+        cacheBust: false,
         backgroundColor: '#ffffff',
-        useCORS: true,
-        logging: false,
-        imageTimeout: 2000,
-        width: element.offsetWidth,
-        height: element.offsetHeight,
+        width: pxW,
+        height: pxH,
       });
 
-      const dataUrl = canvas.toDataURL('image/png');
-      
       // Fetch the image data
       const imgArrayBuffer = await (await fetch(dataUrl)).arrayBuffer();
 
       // Convert px to points (72 DPI / 96 DPI = 0.75)
-      const ptW = canvas.width * 0.75;
-      const ptH = canvas.height * 0.75;
+      const ptW = pxW * 0.75 * 2;
+      const ptH = pxH * 0.75 * 2;
       
       // Create PDF with custom page size
       const pdfDoc = await PDFDocument.create();
@@ -276,26 +162,6 @@ export default function App() {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF: ' + (error as Error).message);
     } finally {
-      for (const { style, property, previous, priority } of colorSpaceOverrides.reverse()) {
-        if (previous) {
-          style.setProperty(property, previous, priority);
-        } else {
-          style.removeProperty(property);
-        }
-      }
-
-      for (const { element, previous } of styleSheetTextOverrides.reverse()) {
-        element.textContent = previous;
-      }
-
-      for (const { name, previous } of appliedColorFallbacks) {
-        if (previous) {
-          element.style.setProperty(name, previous);
-        } else {
-          element.style.removeProperty(name);
-        }
-      }
-
       for (const { img, originalSrc } of imageReplacements) {
         if (img.src !== originalSrc) {
           img.src = originalSrc;
