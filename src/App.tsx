@@ -1,617 +1,761 @@
-import {CVHeader} from '../components/CVHeader';
-import {CVSection} from '../components/CVSection';
-import {ExperienceItem} from '../components/ExperienceItem';
-import {EducationItem} from '../components/EducationItem';
-import {SkillCategory} from '../components/SkillCategory';
-import {LanguageItem} from '../components/LanguageItem';
-import {VolunteerItem} from '../components/VolunteerItem';
-import {Button} from '../components/ui/button';
-import {Download} from 'lucide-react';
-import {useRef, useState} from 'react';
-import {toPng} from 'html-to-image';
-import {PDFDocument, PDFName, PDFString} from 'pdf-lib';
-import profileImage from './assets/daniel.jpg?inline';
-
+import { CVHeader } from "../components/CVHeader";
+import { CVSection } from "../components/CVSection";
+import { ExperienceItem } from "../components/ExperienceItem";
+import { EducationItem } from "../components/EducationItem";
+import { SkillCategory } from "../components/SkillCategory";
+import { LanguageItem } from "../components/LanguageItem";
+import { VolunteerItem } from "../components/VolunteerItem";
+import { Button } from "../components/ui/button";
+import { Download } from "lucide-react";
+import { useRef, useState } from "react";
+import { toPng } from "html-to-image";
+import { PDFDocument, PDFName, PDFString } from "pdf-lib";
+import profileImage from "./assets/daniel.jpg?inline";
 
 const waitForImageReady = async (img: HTMLImageElement) => {
-    if (img.complete && img.naturalWidth !== 0) {
-        try {
-            if ('decode' in img) {
-                await img.decode();
-            }
-        } catch (error) {
-            console.warn('Image decode failed, continuing with fallback load listener', error);
-        }
-        return;
+  if (img.complete && img.naturalWidth !== 0) {
+    try {
+      if ("decode" in img) {
+        await img.decode();
+      }
+    } catch (error) {
+      console.warn(
+        "Image decode failed, continuing with fallback load listener",
+        error,
+      );
     }
+    return;
+  }
 
-    await new Promise<void>((resolve) => {
-        const handleComplete = () => {
-            img.removeEventListener('load', handleComplete);
-            img.removeEventListener('error', handleComplete);
-            resolve();
-        };
+  await new Promise<void>((resolve) => {
+    const handleComplete = () => {
+      img.removeEventListener("load", handleComplete);
+      img.removeEventListener("error", handleComplete);
+      resolve();
+    };
 
-        img.addEventListener('load', handleComplete, {once: true});
-        img.addEventListener('error', handleComplete, {once: true});
-    });
+    img.addEventListener("load", handleComplete, { once: true });
+    img.addEventListener("error", handleComplete, { once: true });
+  });
 };
 
 const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
 
 const toAbsoluteUrl = (value: string) => {
-    try {
-        return new URL(value, window.location.href).href;
-    } catch (error) {
-        return value;
-    }
+  try {
+    return new URL(value, window.location.href).href;
+  } catch (error) {
+    return value;
+  }
 };
 
 const proxyImageUrl = (absoluteUrl: string) => {
-    const withoutProtocol = absoluteUrl.replace(/^https?:\/\//i, '');
-    return `https://images.weserv.nl/?url=${encodeURIComponent(withoutProtocol)}`;
+  const withoutProtocol = absoluteUrl.replace(/^https?:\/\//i, "");
+  return `https://images.weserv.nl/?url=${encodeURIComponent(withoutProtocol)}`;
 };
 
 const fetchImageAsDataUrl = async (url: string) => {
-    const attempt = async (targetUrl: string) => {
-        const response = await fetch(targetUrl, {
-            cache: 'no-store',
-            referrerPolicy: 'no-referrer',
-        });
+  const attempt = async (targetUrl: string) => {
+    const response = await fetch(targetUrl, {
+      cache: "no-store",
+      referrerPolicy: "no-referrer",
+    });
 
-        if (!response.ok) {
-            throw new Error(`Failed to fetch image resource: ${response.status} ${response.statusText}`);
-        }
-
-        const blob = await response.blob();
-
-        return await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onerror = reject;
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.readAsDataURL(blob);
-        });
-    };
-
-    try {
-        return await attempt(url);
-    } catch (error) {
-        if (isHttpUrl(url)) {
-            try {
-                return await attempt(proxyImageUrl(url));
-            } catch (proxyError) {
-                console.warn('Failed to proxy image for export', proxyError);
-            }
-        }
-
-        throw error;
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch image resource: ${response.status} ${response.statusText}`,
+      );
     }
+
+    const blob = await response.blob();
+
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  try {
+    return await attempt(url);
+  } catch (error) {
+    if (isHttpUrl(url)) {
+      try {
+        return await attempt(proxyImageUrl(url));
+      } catch (proxyError) {
+        console.warn("Failed to proxy image for export", proxyError);
+      }
+    }
+
+    throw error;
+  }
 };
 
 const inlineCssBackgrounds = async (root: HTMLElement) => {
-    const replacements: Array<{ element: HTMLElement; originalBackgroundImage: string }> = [];
-    const elements: HTMLElement[] = [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))];
+  const replacements: Array<{
+    element: HTMLElement;
+    originalBackgroundImage: string;
+  }> = [];
+  const elements: HTMLElement[] = [
+    root,
+    ...Array.from(root.querySelectorAll<HTMLElement>("*")),
+  ];
 
-    for (const element of elements) {
-        const computed = window.getComputedStyle(element);
-        const backgroundImage = computed.backgroundImage;
+  for (const element of elements) {
+    const computed = window.getComputedStyle(element);
+    const backgroundImage = computed.backgroundImage;
 
-        if (!backgroundImage || backgroundImage === 'none') {
-            continue;
-        }
-
-        const matches = Array.from(backgroundImage.matchAll(/url\((['"]?)([^'"\)]+)\1\)/g));
-
-        if (matches.length === 0) {
-            continue;
-        }
-
-        let updatedBackgroundImage = backgroundImage;
-        let didReplace = false;
-
-        for (const match of matches) {
-            const token = match[0];
-            const url = match[2];
-
-            if (!url || url.startsWith('data:') || url.startsWith('blob:')) {
-                continue;
-            }
-
-            const absoluteUrl = toAbsoluteUrl(url);
-
-            try {
-                const dataUrl = await fetchImageAsDataUrl(absoluteUrl);
-                updatedBackgroundImage = updatedBackgroundImage.split(token).join(`url("${dataUrl}")`);
-                didReplace = true;
-            } catch (error) {
-                console.warn('Failed to inline background image for export', error);
-            }
-        }
-
-        if (didReplace) {
-            replacements.push({
-                element,
-                originalBackgroundImage: element.style.backgroundImage,
-            });
-
-            element.style.backgroundImage = updatedBackgroundImage;
-        }
+    if (!backgroundImage || backgroundImage === "none") {
+      continue;
     }
 
-    return replacements;
+    const matches = Array.from(
+      backgroundImage.matchAll(/url\((['"]?)([^'"\)]+)\1\)/g),
+    );
+
+    if (matches.length === 0) {
+      continue;
+    }
+
+    let updatedBackgroundImage = backgroundImage;
+    let didReplace = false;
+
+    for (const match of matches) {
+      const token = match[0];
+      const url = match[2];
+
+      if (!url || url.startsWith("data:") || url.startsWith("blob:")) {
+        continue;
+      }
+
+      const absoluteUrl = toAbsoluteUrl(url);
+
+      try {
+        const dataUrl = await fetchImageAsDataUrl(absoluteUrl);
+        updatedBackgroundImage = updatedBackgroundImage
+          .split(token)
+          .join(`url("${dataUrl}")`);
+        didReplace = true;
+      } catch (error) {
+        console.warn("Failed to inline background image for export", error);
+      }
+    }
+
+    if (didReplace) {
+      replacements.push({
+        element,
+        originalBackgroundImage: element.style.backgroundImage,
+      });
+
+      element.style.backgroundImage = updatedBackgroundImage;
+    }
+  }
+
+  return replacements;
 };
 
 export default function App() {
-    const cvRef = useRef<HTMLDivElement>(null);
-    const [isDownloading, setIsDownloading] = useState(false);
+  const cvRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-    const handleDownloadPDF = async () => {
-        const element = cvRef.current;
-        if (!element) return;
+  const handleDownloadPDF = async () => {
+    const element = cvRef.current;
+    if (!element) return;
 
-        setIsDownloading(true);
+    setIsDownloading(true);
 
-        const htmlRoot = document.documentElement;
-        htmlRoot.classList.add('cv-exporting');
+    const htmlRoot = document.documentElement;
+    htmlRoot.classList.add("cv-exporting");
 
-        const imageReplacements: Array<{
-            img: HTMLImageElement;
-            originalSrcAttr: string | null;
-            originalSrcset: string | null;
-            originalSizes: string | null;
-            originalLoading: string | null;
-            originalCrossOrigin: string | null;
-        }> = [];
+    const imageReplacements: Array<{
+      img: HTMLImageElement;
+      originalSrcAttr: string | null;
+      originalSrcset: string | null;
+      originalSizes: string | null;
+      originalLoading: string | null;
+      originalCrossOrigin: string | null;
+    }> = [];
 
-        const backgroundReplacements: Array<{ element: HTMLElement; originalBackgroundImage: string }> = [];
+    const backgroundReplacements: Array<{
+      element: HTMLElement;
+      originalBackgroundImage: string;
+    }> = [];
+
+    try {
+      // Convert all external images to inline data URLs to bypass CORS
+      const images = Array.from(element.querySelectorAll("img"));
+
+      for (const img of images) {
+        await waitForImageReady(img);
+
+        // Skip if already a data URL
+        if (img.src.startsWith("data:")) {
+          continue;
+        }
+
+        const originalSrcAttr = img.getAttribute("src");
+        const originalSrcset = img.getAttribute("srcset");
+        const originalSizes = img.getAttribute("sizes");
+        const originalLoading = img.getAttribute("loading");
+        const originalCrossOrigin = img.getAttribute("crossorigin");
+
+        if (originalLoading !== "eager") {
+          img.setAttribute("loading", "eager");
+        }
+
+        const absoluteUrl = toAbsoluteUrl(img.currentSrc || img.src);
 
         try {
-            // Convert all external images to inline data URLs to bypass CORS
-            const images = Array.from(element.querySelectorAll('img'));
+          const dataUrl = await fetchImageAsDataUrl(absoluteUrl);
 
-            for (const img of images) {
-                await waitForImageReady(img);
+          imageReplacements.push({
+            img,
+            originalSrcAttr,
+            originalSrcset,
+            originalSizes,
+            originalLoading,
+            originalCrossOrigin,
+          });
 
-                // Skip if already a data URL
-                if (img.src.startsWith('data:')) {
-                    continue;
-                }
-
-                const originalSrcAttr = img.getAttribute('src');
-                const originalSrcset = img.getAttribute('srcset');
-                const originalSizes = img.getAttribute('sizes');
-                const originalLoading = img.getAttribute('loading');
-                const originalCrossOrigin = img.getAttribute('crossorigin');
-
-                if (originalLoading !== 'eager') {
-                    img.setAttribute('loading', 'eager');
-                }
-
-                const absoluteUrl = toAbsoluteUrl(img.currentSrc || img.src);
-
-                try {
-                    const dataUrl = await fetchImageAsDataUrl(absoluteUrl);
-
-                    imageReplacements.push({
-                        img,
-                        originalSrcAttr,
-                        originalSrcset,
-                        originalSizes,
-                        originalLoading,
-                        originalCrossOrigin,
-                    });
-
-                    img.removeAttribute('srcset');
-                    img.removeAttribute('sizes');
-                    img.src = dataUrl;
-                    if ('decode' in img) {
-                        try {
-                            await img.decode();
-                        } catch (decodeError) {
-                            console.warn('Image decode failed after inlining, waiting for load event instead', decodeError);
-                            await waitForImageReady(img);
-                        }
-                    } else {
-                        await waitForImageReady(img);
-                    }
-
-                    if (img.hasAttribute('crossorigin') && img.src.startsWith('data:')) {
-                        img.removeAttribute('crossorigin');
-                    }
-                } catch (fetchError) {
-                    console.warn('Failed to inline image for export', fetchError);
-
-                    if (originalLoading === null) {
-                        img.removeAttribute('loading');
-                    } else {
-                        img.setAttribute('loading', originalLoading);
-                    }
-                }
+          img.removeAttribute("srcset");
+          img.removeAttribute("sizes");
+          img.src = dataUrl;
+          if ("decode" in img) {
+            try {
+              await img.decode();
+            } catch (decodeError) {
+              console.warn(
+                "Image decode failed after inlining, waiting for load event instead",
+                decodeError,
+              );
+              await waitForImageReady(img);
             }
+          } else {
+            await waitForImageReady(img);
+          }
 
-            // Give browser time to update the images
-            await new Promise(resolve => setTimeout(resolve, 300));
+          if (img.hasAttribute("crossorigin") && img.src.startsWith("data:")) {
+            img.removeAttribute("crossorigin");
+          }
+        } catch (fetchError) {
+          console.warn("Failed to inline image for export", fetchError);
 
-            backgroundReplacements.push(...await inlineCssBackgrounds(element));
-
-            const pxW = element.scrollWidth;
-            const pxH = element.scrollHeight;
-
-            const linkAnnotations: Array<{
-                href: string;
-                rect: { x: number; y: number; width: number; height: number };
-            }> = [];
-
-            const elementRect = element.getBoundingClientRect();
-            const anchors = Array.from(element.querySelectorAll<HTMLAnchorElement>('a[href]'));
-
-            for (const anchor of anchors) {
-                const rawHref = anchor.getAttribute('href');
-
-                if (!rawHref) {
-                    continue;
-                }
-
-                const normalizedHref = rawHref.trim();
-
-                if (!normalizedHref || normalizedHref.startsWith('#') || normalizedHref.toLowerCase().startsWith('javascript:')) {
-                    continue;
-                }
-
-                const href = anchor.href || normalizedHref;
-                const rect = anchor.getBoundingClientRect();
-
-                if (rect.width === 0 || rect.height === 0) {
-                    continue;
-                }
-
-                linkAnnotations.push({
-                    href,
-                    rect: {
-                        x: rect.left - elementRect.left,
-                        y: rect.top - elementRect.top,
-                        width: rect.width,
-                        height: rect.height,
-                    },
-                });
-            }
-
-            // Rasterize to PNG at 2x resolution for crisp output
-            const dataUrl = await toPng(element, {
-                pixelRatio: 2,
-                cacheBust: true,
-                backgroundColor: '#ffffff',
-                width: pxW,
-                height: pxH,
-            });
-
-            // Fetch the image data
-            const imgArrayBuffer = await (await fetch(dataUrl)).arrayBuffer();
-
-            // Convert px to points (72 DPI / 96 DPI = 0.75)
-            const ptW = pxW * 0.75 * 2;
-            const ptH = pxH * 0.75 * 2;
-
-            // Create PDF with custom page size
-            const pdfDoc = await PDFDocument.create();
-            pdfDoc.setTitle(`${cvData.profile.name} — CV`);
-            pdfDoc.setAuthor(`${cvData.profile.name}`);
-            pdfDoc.setSubject("Curriculum Vitae");
-            pdfDoc.setCreator("React/Vite + pdf-lib");
-            pdfDoc.setProducer("pdf-lib");
-            pdfDoc.setCreationDate(new Date());
-            pdfDoc.setModificationDate(new Date());
-
-            const page = pdfDoc.addPage([ptW, ptH]);
-
-            // Embed PNG and draw it
-            const pngImage = await pdfDoc.embedPng(imgArrayBuffer);
-            page.drawImage(pngImage, {
-                x: 0,
-                y: 0,
-                width: ptW,
-                height: ptH,
-            });
-
-            if (linkAnnotations.length > 0) {
-                const scaleX = ptW / pxW;
-                const scaleY = ptH / pxH;
-                let annots = page.node.Annots();
-
-                if (!annots) {
-                    annots = pdfDoc.context.obj([]);
-                    page.node.set(PDFName.of('Annots'), annots);
-                }
-
-                const annotationsArray = annots!;
-
-                for (const {href, rect} of linkAnnotations) {
-                    const width = rect.width * scaleX;
-                    const height = rect.height * scaleY;
-                    const x = rect.x * scaleX;
-                    const y = ptH - rect.y * scaleY - height;
-
-                    const annotation = pdfDoc.context.obj({
-                        Type: PDFName.of('Annot'),
-                        Subtype: PDFName.of('Link'),
-                        Rect: pdfDoc.context.obj([x, y, x + width, y + height]),
-                        Border: pdfDoc.context.obj([0, 0, 0]),
-                        A: pdfDoc.context.obj({
-                            Type: PDFName.of('Action'),
-                            S: PDFName.of('URI'),
-                            URI: PDFString.of(href),
-                        }),
-                    });
-
-                    annotationsArray.push(pdfDoc.context.register(annotation));
-                }
-            }
-
-            // Save and download
-            const pdfBytes = await pdfDoc.save();
-            const pdfBuffer = pdfBytes.buffer.slice(
-                pdfBytes.byteOffset,
-                pdfBytes.byteOffset + pdfBytes.byteLength
-            );
-            const blob = new Blob([pdfBuffer as ArrayBuffer], {type: 'application/pdf'});
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'CV_Daniel_Barber.pdf';
-            link.click();
-            URL.revokeObjectURL(url);
-
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF: ' + (error as Error).message);
-        } finally {
-            htmlRoot.classList.remove('cv-exporting');
-
-            for (const {element: target, originalBackgroundImage} of backgroundReplacements) {
-                if (originalBackgroundImage) {
-                    target.style.backgroundImage = originalBackgroundImage;
-                } else {
-                    target.style.removeProperty('background-image');
-                }
-            }
-
-            for (const {
-                img,
-                originalSrcAttr,
-                originalSrcset,
-                originalSizes,
-                originalLoading,
-                originalCrossOrigin
-            } of imageReplacements) {
-                if (originalSrcAttr !== null) {
-                    img.setAttribute('src', originalSrcAttr);
-                    if (img.src !== originalSrcAttr) {
-                        img.src = originalSrcAttr;
-                    }
-                } else {
-                    img.removeAttribute('src');
-                }
-
-                if (originalSrcset !== null) {
-                    img.setAttribute('srcset', originalSrcset);
-                } else {
-                    img.removeAttribute('srcset');
-                }
-
-                if (originalSizes !== null) {
-                    img.setAttribute('sizes', originalSizes);
-                } else {
-                    img.removeAttribute('sizes');
-                }
-
-                if (originalLoading !== null) {
-                    img.setAttribute('loading', originalLoading);
-                } else {
-                    img.removeAttribute('loading');
-                }
-
-                if (originalCrossOrigin !== null) {
-                    img.setAttribute('crossorigin', originalCrossOrigin);
-                } else {
-                    img.removeAttribute('crossorigin');
-                }
-            }
-
-            setIsDownloading(false);
+          if (originalLoading === null) {
+            img.removeAttribute("loading");
+          } else {
+            img.setAttribute("loading", originalLoading);
+          }
         }
-    };
+      }
 
-    const cvData = {
-        profile: {
-            name: "Daniel Barber",
-            title: "Bachelor@IBM • Customer Success • Data & AI",
-            email: "daniel_barber23@hotmail.com",
-            phone: "+41 79 257 55 74",
-            location: "Baden AG, Switzerland",
-            linkedin: "https://www.linkedin.com/in/daniel-robert-barber/",
-            github: undefined,
-            website: "https://daniel-barber.github.io/digital-cv/",
-            profileImage: profileImage,
-        },
-        summary:
-            "I am currently in my seventh semester of a Bachelor of Science in Computer Science program at FHNW with a major in Design & Management. At IBM Switzerland, I am on the Customer Success Management team for Data & AI. I support projects that design and deploy AI use cases to deliver measurable business value. Drawing from my background in marketing, UX, and technology, I develop solutions that are intuitive, impactful, and aligned with real user and business needs.",
-        experience: [
-            {
-                company: "IBM Schweiz AG",
-                position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
-                period: "Sep 2024 - Present",
-                description: [
-                    "Support client projects in designing and deploying Generative and Agentic AI use cases on IBM watsonx, bridging business goals with AI capabilities.",
-                    "Assist with deployment reporting and forecasting to inform strategic planning and client success tracking.",
-                    "Develop documentation and presentation materials that showcase value realization and progress to stakeholders.",
-                    "Coordinate communication across teams to ensure alignment, smooth delivery, and knowledge sharing.",
-                    "Lead the promotional team for watsonx Challenge Switzerland, a national university initiative empowering students to solve real-world AI challenges from Swiss companies."
-                ]
+      // Give browser time to update the images
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-            },
-            {
-                company: "Möbel Pfister AG",
-                position: "Search Engine Advertising Manager",
-                period: "Aug  2020 - Aug 2024",
-                description: [
-                    "Implemented and continuously optimized search and shopping campaigns across Google and Bing, improving visibility and conversion performance.",
-                    "Developed data-driven dashboards and analyses in Google Looker Studio to support strategic marketing and budget allocation decisions.",
-                    "Planned, monitored, and reported SEA budgets while coordinating with cross-channel display and social media campaigns to ensure message alignment.",
-                    "Managed and optimized product feeds across e-commerce sales channels, enhancing data quality and campaign efficiency."
-                ]
-            },
-            {
-                company: "Möbel Pfister AG",
-                position: "Mediamatiker EFZ (Apprenticeship)",
-                period: "Aug 2016 - Jul 2020",
-                description: [
-                    "Provided first-level IT support and contributed to internal digitalization projects within the Org-IT department.",
-                    "Supported the eCommerce team by implementing landing pages, maintaining product data, and assisting in customer-card workflows and shop feature concepts.",
-                    "Created marketing materials including newsletters, print assets, and social media content, ensuring consistent brand communication across channels."
-                ]
-            },
-            {
-                company: "Mürset Restaurants",
-                position: "Koch EFZ (Apprenticeship)",
-                period: "Aug 2012 - Jul 2015",
-                description: [
-                    "Completed a culinary apprenticeship, developing strong precision, teamwork, and time management skills in a fast-paced, high-pressure environment."
-                ]
-            }
+      backgroundReplacements.push(...(await inlineCssBackgrounds(element)));
+
+      const pxW = element.scrollWidth;
+      const pxH = element.scrollHeight;
+
+      const linkAnnotations: Array<{
+        href: string;
+        rect: { x: number; y: number; width: number; height: number };
+      }> = [];
+
+      const elementRect = element.getBoundingClientRect();
+      const anchors = Array.from(
+        element.querySelectorAll<HTMLAnchorElement>("a[href]"),
+      );
+
+      for (const anchor of anchors) {
+        const rawHref = anchor.getAttribute("href");
+
+        if (!rawHref) {
+          continue;
+        }
+
+        const normalizedHref = rawHref.trim();
+
+        if (
+          !normalizedHref ||
+          normalizedHref.startsWith("#") ||
+          normalizedHref.toLowerCase().startsWith("javascript:")
+        ) {
+          continue;
+        }
+
+        const href = anchor.href || normalizedHref;
+        const rect = anchor.getBoundingClientRect();
+
+        if (rect.width === 0 || rect.height === 0) {
+          continue;
+        }
+
+        linkAnnotations.push({
+          href,
+          rect: {
+            x: rect.left - elementRect.left,
+            y: rect.top - elementRect.top,
+            width: rect.width,
+            height: rect.height,
+          },
+        });
+      }
+
+      // Rasterize to PNG at 2x resolution for crisp output
+      const dataUrl = await toPng(element, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+        width: pxW,
+        height: pxH,
+      });
+
+      // Fetch the image data
+      const imgArrayBuffer = await (await fetch(dataUrl)).arrayBuffer();
+
+      // Convert px to points (72 DPI / 96 DPI = 0.75)
+      const ptW = pxW * 0.75 * 2;
+      const ptH = pxH * 0.75 * 2;
+
+      // Create PDF with custom page size
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.setTitle(`${cvData.profile.name} — CV`);
+      pdfDoc.setAuthor(`${cvData.profile.name}`);
+      pdfDoc.setSubject("Curriculum Vitae");
+      pdfDoc.setCreator("React/Vite + pdf-lib");
+      pdfDoc.setProducer("pdf-lib");
+      pdfDoc.setCreationDate(new Date());
+      pdfDoc.setModificationDate(new Date());
+
+      const page = pdfDoc.addPage([ptW, ptH]);
+
+      // Embed PNG and draw it
+      const pngImage = await pdfDoc.embedPng(imgArrayBuffer);
+      page.drawImage(pngImage, {
+        x: 0,
+        y: 0,
+        width: ptW,
+        height: ptH,
+      });
+
+      if (linkAnnotations.length > 0) {
+        const scaleX = ptW / pxW;
+        const scaleY = ptH / pxH;
+        let annots = page.node.Annots();
+
+        if (!annots) {
+          annots = pdfDoc.context.obj([]);
+          page.node.set(PDFName.of("Annots"), annots);
+        }
+
+        const annotationsArray = annots!;
+
+        for (const { href, rect } of linkAnnotations) {
+          const width = rect.width * scaleX;
+          const height = rect.height * scaleY;
+          const x = rect.x * scaleX;
+          const y = ptH - rect.y * scaleY - height;
+
+          const annotation = pdfDoc.context.obj({
+            Type: PDFName.of("Annot"),
+            Subtype: PDFName.of("Link"),
+            Rect: pdfDoc.context.obj([x, y, x + width, y + height]),
+            Border: pdfDoc.context.obj([0, 0, 0]),
+            A: pdfDoc.context.obj({
+              Type: PDFName.of("Action"),
+              S: PDFName.of("URI"),
+              URI: PDFString.of(href),
+            }),
+          });
+
+          annotationsArray.push(pdfDoc.context.register(annotation));
+        }
+      }
+
+      // Save and download
+      const pdfBytes = await pdfDoc.save();
+      const pdfBuffer = pdfBytes.buffer.slice(
+        pdfBytes.byteOffset,
+        pdfBytes.byteOffset + pdfBytes.byteLength,
+      );
+      const blob = new Blob([pdfBuffer as ArrayBuffer], {
+        type: "application/pdf",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "CV_Daniel_Barber.pdf";
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF: " + (error as Error).message);
+    } finally {
+      htmlRoot.classList.remove("cv-exporting");
+
+      for (const {
+        element: target,
+        originalBackgroundImage,
+      } of backgroundReplacements) {
+        if (originalBackgroundImage) {
+          target.style.backgroundImage = originalBackgroundImage;
+        } else {
+          target.style.removeProperty("background-image");
+        }
+      }
+
+      for (const {
+        img,
+        originalSrcAttr,
+        originalSrcset,
+        originalSizes,
+        originalLoading,
+        originalCrossOrigin,
+      } of imageReplacements) {
+        if (originalSrcAttr !== null) {
+          img.setAttribute("src", originalSrcAttr);
+          if (img.src !== originalSrcAttr) {
+            img.src = originalSrcAttr;
+          }
+        } else {
+          img.removeAttribute("src");
+        }
+
+        if (originalSrcset !== null) {
+          img.setAttribute("srcset", originalSrcset);
+        } else {
+          img.removeAttribute("srcset");
+        }
+
+        if (originalSizes !== null) {
+          img.setAttribute("sizes", originalSizes);
+        } else {
+          img.removeAttribute("sizes");
+        }
+
+        if (originalLoading !== null) {
+          img.setAttribute("loading", originalLoading);
+        } else {
+          img.removeAttribute("loading");
+        }
+
+        if (originalCrossOrigin !== null) {
+          img.setAttribute("crossorigin", originalCrossOrigin);
+        } else {
+          img.removeAttribute("crossorigin");
+        }
+      }
+
+      setIsDownloading(false);
+    }
+  };
+
+  const cvData = {
+    profile: {
+      name: "Daniel Barber",
+      title: "Bachelor@IBM • Technology Sales • Data & AI",
+      email: "daniel_barber23@hotmail.com",
+      phone: "+41 79 257 55 74",
+      location: "Baden AG, Switzerland",
+      linkedin: "https://www.linkedin.com/in/daniel-robert-barber/",
+      github: undefined,
+      website: "https://daniel-barber.github.io/digital-cv/",
+      profileImage: profileImage,
+    },
+    summary:
+      "Tech–business professional at IBM with experience across Customer Success and Technology Sales in Data & AI. Strong at translating client problems into solution narratives, facilitating Design Thinking workshops, and aligning sales, product, and delivery stakeholders. Background in Computer Science (Design & Management) with hands-on analytics and prototyping experience; targeting Business Analyst, Junior Consultant, and digital transformation roles ahead of a Master’s in Business Information Systems.",
+    experience: [
+      {
+        company: "IBM Schweiz AG",
+        position: "Technology Sales – Data & AI (Bachelor@IBM)",
+        period: "Jan 2026 - Present",
+        description: [
+          "Support technology sellers and account teams in positioning Data & AI solutions, translating client challenges into clear solution narratives and next steps.",
+          "Contribute to opportunity preparation by structuring client inputs, clarifying requirements, and coordinating across sales and technical stakeholders.",
+          "Create and maintain client-facing materials (value propositions, presentations, briefs) for Generative and Agentic AI use cases on IBM watsonx.",
+          "Act as a Design Thinking expert in the 'Rock with IBM' enablement series, facilitating hands-on workshops to capture and refine client problems and translate them into scoped use cases.",
+          "Co-led the IBM watsonx University Challenge Switzerland 2025/26, onboarding ~10 Swiss companies and facilitating use-case definition and scoping to produce actionable AI challenge briefs.",
         ],
-        education: [
-            {
-                school: "FHNW University of Applied Sciences, Brugg-Windisch",
-                degree: "Bachelor of Science",
-                field: "Computer Science (Design & Management)",
-                period: "2022 - 2026",
-                details: "Current Grade Average: 5.3 / 6.0 (Grade A Student, Top 10%)"
-            },
-            {
-                school: "HKV Aarau",
-                degree: "Mediamatiker EFZ with Vocational Baccalaureate",
-                period: "2016 - 2020",
-                details: "Final Grade: 5.7 / 6.0"
-            },
-            {
-                school: "Berufsschule Aarau",
-                degree: "Koch EFZ",
-                period: "2012 - 2015",
-                details: "Final Grade: 5.2 / 6.0"
-            },
+      },
 
+      {
+        company: "IBM Schweiz AG",
+        position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
+        period: "Sep 2024 - Dec 2025",
+        description: [
+          "Supported client projects designing and deploying Generative and Agentic AI use cases on IBM watsonx, linking business goals to AI capabilities.",
+          "Assisted with deployment reporting and forecasting to inform planning and client success tracking.",
+          "Developed documentation and stakeholder-ready materials to communicate progress, outcomes, and value realization.",
+          "Coordinated communication across sales, technical, and delivery teams to maintain alignment and smooth execution.",
+          "Co-organized a DACH user group in Munich, connecting enterprise clients with IBM product managers to gather feedback, align on product roadmap topics, and discuss real-world AI adoption challenges.",
+          "Contributed to IBM watsonx challenge initiatives and enablement activities to drive adoption and knowledge sharing.",
         ],
+      },
+
+      {
+        company: "Möbel Pfister AG",
+        position: "Search Engine Advertising Manager",
+        period: "Aug 2020 - Aug 2024",
+        description: [
+          "Implemented and continuously optimized search and shopping campaigns across Google and Bing, improving visibility and conversion performance.",
+          "Developed data-driven dashboards and analyses in Google Looker Studio to support strategic marketing and budget allocation decisions.",
+          "Planned, monitored, and reported SEA budgets while coordinating with cross-channel display and social media campaigns to ensure message alignment.",
+          "Managed and optimized product feeds across e-commerce sales channels, enhancing data quality and campaign efficiency.",
+        ],
+      },
+      {
+        company: "Möbel Pfister AG",
+        position: "Mediamatiker EFZ (Apprenticeship)",
+        period: "Aug 2016 - Jul 2020",
+        description: [
+          "Provided first-level IT support and contributed to internal digitalization projects within the Org-IT department.",
+          "Supported the eCommerce team by implementing landing pages, maintaining product data, and assisting in customer-card workflows and shop feature concepts.",
+          "Created marketing materials including newsletters, print assets, and social media content, ensuring consistent brand communication across channels.",
+        ],
+      },
+      {
+        company: "Mürset Restaurants",
+        position: "Koch EFZ (Apprenticeship)",
+        period: "Aug 2012 - Jul 2015",
+        description: [
+          "Completed a culinary apprenticeship, developing strong precision, teamwork, and time management skills in a fast-paced, high-pressure environment.",
+        ],
+      },
+    ],
+    projects: [
+      {
+        title: "Client AI Use-Case Identification & Scoping",
+        context: "IBM Switzerland",
+        period: "2025 - 2026",
+        description: [
+          "Worked with Swiss enterprise clients to identify and prioritise potential AI use cases aligned with business objectives.",
+          "Structured ambiguous problem statements into clear use cases by defining scope, constraints, and success criteria.",
+          "Assessed feasibility and value dimensions to support go/no-go decisions and downstream solution development.",
+          "Produced structured use-case briefs used as input for solution demos and innovation initiatives.",
+        ],
+      },
+      {
+        title: "Design Thinking–Based Problem Framing for AI Solutions",
+        context: "Rock with IBM Enablement Series",
+        period: "2025 - 2026",
+        description: [
+          "Applied Design Thinking methods to guide clients from initial pain points to structured, prioritised problem definitions.",
+          "Facilitated workshops to synthesise insights, align stakeholders, and establish a shared understanding of the problem space.",
+          "Enabled translation of clarified problem statements into scoped AI solution approaches and prototypes.",
+        ],
+      },
+      {
+        title: "Empathic Conversational AI for Clinical Trial Support",
+        context: "University Research Project",
+        period: "2025",
+        description: [
+          "Addressed emotional support and information needs of elderly patients participating in breast cancer clinical trials.",
+          "Designed an empathic conversational agent using human-centred design principles and iterative prototyping.",
+          "Defined evaluation criteria for empathy and usability and analysed trade-offs between technical feasibility, ethics, and user needs.",
+          "Reflected on limitations and risks of AI-mediated support in sensitive healthcare contexts.",
+        ],
+      },
+    ],
+
+    education: [
+      {
+        school: "FHNW University of Applied Sciences, Brugg-Windisch",
+        degree: "Bachelor of Science",
+        field: "Computer Science (Design & Management)",
+        period: "2022 - 2026",
+        details: "Current Grade Average: 5.3 / 6.0 (Grade A Student, Top 10%)",
+      },
+      {
+        school: "HKV Aarau",
+        degree: "Mediamatiker EFZ with Vocational Baccalaureate",
+        period: "2016 - 2020",
+        details: "Final Grade: 5.7 / 6.0",
+      },
+      {
+        school: "Berufsschule Aarau",
+        degree: "Koch EFZ",
+        period: "2012 - 2015",
+        details: "Final Grade: 5.2 / 6.0",
+      },
+    ],
+    skills: [
+      {
+        category: "Professional & Personal",
         skills: [
-            {
-                category: "Professional & Personal",
-                skills: ["Analytical Thinking", "Stakeholder Management", "Creativity", "Curiosity", "Adaptability", "Structured Thinking", "Problem Solving", "Empathy"]
-            },
-            {
-                category: "Technical Skills",
-                skills: ["Java", "Python", "Kotlin", "React", "TypeScript", "Next.js", "HTML / CSS", "Tailwind CSS", "Git", "Docker", "SQL", "MongoDB", "Streamlit", "watsonx.ai", "watsonx Orchestrate", "Prompt Engineering", "Data Visualization"]
-            },
-            {
-                category: "Design & Process",
-                skills: ["Design Thinking", "Requirements Engineering", "Agile / Scrum", "User Research", "Journey Mapping", "UI/UX Design", "Figma", "Prototyping", "Workshop Facilitation"]
-            },
+          "Analytical Thinking",
+          "Stakeholder Management",
+          "Creativity",
+          "Curiosity",
+          "Adaptability",
+          "Structured Thinking",
+          "Problem Solving",
+          "Empathy",
         ],
-        languages: [
-            {
-                language: "English",
-                proficiency: "Native",
-                level: 5
-            },
-            {
-                language: "German",
-                proficiency: "Native",
-                level: 5
-            },
-            {
-                language: "French",
-                proficiency: "Intermediate (B2)",
-                level: 3
-            },
-            {
-                language: "Spanish",
-                proficiency: "Elementary (A1)",
-                level: 1
-            }
+      },
+      {
+        category: "Technical Skills",
+        skills: [
+          "Python",
+          "SQL",
+          "Power BI / Looker Studio",
+          "Git",
+          "Docker",
+          "Data Visualization",
+          "watsonx.ai",
+          "Prompt Engineering",
         ],
-        volunteer: [
-            {
-                organization: "du-bist-du (Program of Sexuelle Gesundheit Zürich)",
-                role: "Volunteer Counselor & Website Manager",
-                period: "Nov 2016 - Present",
-                description: [
-                    "Provide peer counselling for young LGBT+ people on sexual and romantic orientation.",
-                    "Support awareness and education initiatives promoting mental and physical wellbeing.",
-                    "Maintain and improve the du-bist-du.ch website to enhance accessibility and outreach."
-                ]
-            },
-        ]
-    };
+      },
+      {
+        category: "Software & Prototyping",
+        skills: [
+          "TypeScript",
+          "React",
+          "Next.js",
+          "HTML / CSS",
+          "Tailwind CSS",
+          "Streamlit",
+        ],
+      },
+      {
+        category: "Design & Process",
+        skills: [
+          "Design Thinking",
+          "Requirements Engineering",
+          "Agile / Scrum",
+          "User Research",
+          "Journey Mapping",
+          "UI/UX Design",
+          "Figma",
+          "Prototyping",
+          "Workshop Facilitation",
+        ],
+      },
+    ],
+    languages: [
+      {
+        language: "English",
+        proficiency: "Native",
+        level: 5,
+      },
+      {
+        language: "German",
+        proficiency: "Native",
+        level: 5,
+      },
+      {
+        language: "French",
+        proficiency: "Intermediate (B2)",
+        level: 3,
+      },
+      {
+        language: "Spanish",
+        proficiency: "Elementary (A1)",
+        level: 1,
+      },
+    ],
+    volunteer: [
+      {
+        organization: "IBM Switzerland",
+        role: "LGBTQ+ Switzerland Business Resource Group (BRG) Co-Lead",
+        period: "July 2025 - Present",
+        description: [
+          "Co-lead the LGBTQ+ Switzerland BRG and run community and inclusion events across IBM Switzerland.",
+          "Work with speakers and stakeholders and handle communications to drive participation and engagement.",
+          "Support allyship and awareness initiatives through practical, employee-facing formats.",
+        ],
+      },
+      {
+        organization: "du-bist-du (Program of Sexuelle Gesundheit Zürich)",
+        role: "Volunteer Counselor & Website Manager",
+        period: "Nov 2016 - Present",
+        description: [
+          "Provide peer counselling for young LGBT+ people on sexual and romantic orientation.",
+          "Support awareness and education initiatives promoting mental and physical wellbeing.",
+          "Maintain and improve the du-bist-du.ch website to enhance accessibility and outreach.",
+        ],
+      },
+    ],
+  };
 
-    return (
-        <>
-            <title>{`${cvData.profile.name} CV`}</title>
-            <meta
-                name="description"
-                content="CV of Daniel Barber - Data & AI, Customer Success, UX."
-            />
-            <meta property="og:title" content={`${cvData.profile.name} CV`}/>
-            <meta property="og:description" content="Data & AI • Customer Success • UX"/>
-            <link rel="canonical" href={cvData.profile.website}/>
-            <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto mb-4 flex justify-end">
-                    <Button
-                        onClick={handleDownloadPDF}
-                        disabled={isDownloading}
-                        className="gap-2"
-                    >
-                        <Download className="w-4 h-4"/>
-                        {isDownloading ? 'Generating PDF...' : 'Download as PDF'}
-                    </Button>
-                </div>
-                <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-                    <div ref={cvRef} className="relative p-12">
-                        <CVHeader {...cvData.profile} />
+  return (
+    <>
+      <title>{`${cvData.profile.name} CV`}</title>
+      <meta
+        name="description"
+        content="CV of Daniel Barber - Data & AI, Technology Sales, Business-IT, UX."
+      />
+      <meta
+        property="og:description"
+        content="Data & AI • Technology Sales • Business-IT • UX"
+      />
 
-                        <CVSection title="Professional Summary">
-                            <p className="text-gray-700 leading-relaxed">{cvData.summary}</p>
-                        </CVSection>
+      <link rel="canonical" href={cvData.profile.website} />
+      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto mb-4 flex justify-end">
+          <Button
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            className="gap-2"
+          >
+            <Download className="w-4 h-4" />
+            {isDownloading ? "Generating PDF..." : "Download as PDF"}
+          </Button>
+        </div>
+        <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
+          <div ref={cvRef} className="relative p-12">
+            <CVHeader {...cvData.profile} />
 
-                        <CVSection title="Work Experience">
-                            {cvData.experience.map((exp, index) => (
-                                <ExperienceItem key={index} {...exp} />
-                            ))}
-                        </CVSection>
+            <CVSection title="Professional Summary">
+              <p className="text-gray-700 leading-relaxed">{cvData.summary}</p>
+            </CVSection>
 
-                        <CVSection title="Education">
-                            {cvData.education.map((edu, index) => (
-                                <EducationItem key={index} {...edu} />
-                            ))}
-                        </CVSection>
+            <CVSection title="Work Experience">
+              {cvData.experience.map((exp, index) => (
+                <ExperienceItem key={index} {...exp} />
+              ))}
+            </CVSection>
 
-                        <CVSection title="Skills & Expertise">
-                            {cvData.skills.map((skillCategory, index) => (
-                                <SkillCategory key={index} {...skillCategory} />
-                            ))}
-                        </CVSection>
+            {cvData.projects?.length ? (
+              <CVSection title="Selected Projects">
+                {cvData.projects.map((project, index) => (
+                  <ExperienceItem
+                    key={index}
+                    company={project.context}
+                    position={project.title}
+                    period={project.period}
+                    description={project.description}
+                  />
+                ))}
+              </CVSection>
+            ) : null}
 
-                        <CVSection title="Languages">
-                            {cvData.languages.map((lang, index) => (
-                                <LanguageItem key={index} {...lang} />
-                            ))}
-                        </CVSection>
+            <CVSection title="Education">
+              {cvData.education.map((edu, index) => (
+                <EducationItem key={index} {...edu} />
+              ))}
+            </CVSection>
 
-                        <CVSection title="Volunteer Work">
-                            {cvData.volunteer.map((vol, index) => (
-                                <VolunteerItem key={index} {...vol} />
-                            ))}
-                        </CVSection>
-                    </div>
-                </div>
-            </div>
-        </>
-    );
+            <CVSection title="Skills & Expertise">
+              {cvData.skills.map((skillCategory, index) => (
+                <SkillCategory key={index} {...skillCategory} />
+              ))}
+            </CVSection>
+
+            <CVSection title="Languages">
+              {cvData.languages.map((lang, index) => (
+                <LanguageItem key={index} {...lang} />
+              ))}
+            </CVSection>
+
+            <CVSection title="Volunteer Work">
+              {cvData.volunteer.map((vol, index) => (
+                <VolunteerItem key={index} {...vol} />
+              ))}
+            </CVSection>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
