@@ -3,20 +3,20 @@ interface SkillCategoryProps {
   skills: string[];
 }
 
-const categoryGradients: Record<string, string> = {
-  "Professional & Personal": "from-blue-500 to-cyan-500",
-  "Technical Skills": "from-purple-500 to-pink-500",
-  "Software & Prototyping": "from-emerald-500 to-teal-500",
-  "Design & Process": "from-orange-500 to-red-500",
+const categoryStyles: Record<string, string> = {
+  "Professional & Personal": "bg-gradient-to-r from-blue-500 to-cyan-500",
+  "Technical Skills": "bg-gradient-to-r from-purple-500 to-pink-500",
+  "Software & Prototyping": "bg-gradient-to-r from-green-500 to-cyan-500",
+  "Design & Process": "bg-gradient-to-r from-orange-500 to-red-500",
 };
 
 export function SkillCategory({ category, skills }: SkillCategoryProps) {
-  const gradient = categoryGradients[category] || "from-gray-400 to-gray-600";
+  const gradientClass = categoryStyles[category] || "bg-gradient-to-r from-gray-400 to-gray-600";
 
   return (
     <div className="mb-10 last:mb-0">
       <div
-        className={`bg-gradient-to-r ${gradient} text-white px-4 py-2 rounded-lg mb-5 inline-block`}
+        className={`${gradientClass} text-white px-4 py-2 rounded-lg mb-5 inline-block`}
       >
         <h3 className="text-white text-sm uppercase tracking-wide">
           {category}
