@@ -1,13 +1,7 @@
 import { Calendar } from 'lucide-react';
+import type { ExperienceData } from './types';
 
-interface ExperienceItemProps {
-  company: string;
-  position: string;
-  period: string;
-  description: string[];
-}
-
-export function ExperienceItem({ company, position, period, description }: ExperienceItemProps) {
+export function ExperienceItem({ company, position, period, description }: ExperienceData) {
   return (
     <div className="mb-8 last:mb-0">
       <div className="mb-3">

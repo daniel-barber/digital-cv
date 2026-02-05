@@ -1,12 +1,7 @@
 import { Languages } from 'lucide-react';
+import type { LanguageData } from './types';
 
-interface LanguageItemProps {
-  language: string;
-  proficiency: string;
-  level: number; // 1-5 scale
-}
-
-export function LanguageItem({ language, proficiency, level }: LanguageItemProps) {
+export function LanguageItem({ language, proficiency, level }: LanguageData) {
   return (
     <div className="mb-8 last:mb-0">
       <div className="flex items-center justify-between mb-2">

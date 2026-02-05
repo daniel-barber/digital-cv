@@ -1,14 +1,7 @@
 import { GraduationCap, Calendar } from 'lucide-react';
+import type { EducationData } from './types';
 
-interface EducationItemProps {
-  school: string;
-  degree: string;
-  field?: string;
-  period: string;
-  details?: string;
-}
-
-export function EducationItem({ school, degree, field, period, details }: EducationItemProps) {
+export function EducationItem({ school, degree, field, period, details }: EducationData) {
   return (
     <div className="mb-5 last:mb-0">
       <div className="mb-2">

@@ -1,13 +1,7 @@
 import { Heart, Calendar } from 'lucide-react';
+import type { VolunteerData } from './types';
 
-interface VolunteerItemProps {
-  organization: string;
-  role: string;
-  period: string;
-  description: string[];
-}
-
-export function VolunteerItem({ organization, role, period, description }: VolunteerItemProps) {
+export function VolunteerItem({ organization, role, period, description }: VolunteerData) {
   return (
     <div className="mb-8 last:mb-0">
       <div className="mb-3">

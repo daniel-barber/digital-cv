@@ -1,18 +1,7 @@
 import { Mail, Phone, MapPin, Linkedin, Github, Globe } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from './ImageWithFallback';
+import type { ProfileData } from './types';
 import './CVHeader.css';
-
-interface CVHeaderProps {
-  name: string;
-  title: string;
-  email: string;
-  phone: string;
-  location: string;
-  linkedin?: string;
-  github?: string;
-  website?: string;
-  profileImage: string;
-}
 
 export function CVHeader({
   name,
@@ -24,7 +13,7 @@ export function CVHeader({
   github,
   website,
   profileImage,
-}: CVHeaderProps) {
+}: ProfileData) {
   return (
     <div className="relative pb-10 mb-8">
       {/* Gradient background accent */}

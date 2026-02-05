@@ -1,7 +1,4 @@
-interface SkillCategoryProps {
-  category: string;
-  skills: string[];
-}
+import type { SkillCategoryData } from './types';
 
 const categoryStyles: Record<string, string> = {
   "Professional & Personal": "bg-gradient-to-r from-blue-500 to-cyan-500",
@@ -10,7 +7,7 @@ const categoryStyles: Record<string, string> = {
   "Design & Process": "bg-gradient-to-r from-orange-500 to-red-500",
 };
 
-export function SkillCategory({ category, skills }: SkillCategoryProps) {
+export function SkillCategory({ category, skills }: SkillCategoryData) {
   const gradientClass = categoryStyles[category] || "bg-gradient-to-r from-gray-400 to-gray-600";
 
   return (
