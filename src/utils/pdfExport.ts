@@ -147,6 +147,10 @@ const inlineCssBackgrounds = async (root: HTMLElement) => {
 export async function generatePDF(element: HTMLElement, fileName: string) {
   const htmlRoot = document.documentElement;
   htmlRoot.classList.add("cv-exporting");
+  
+  // Wait for layout to stabilize after adding cv-exporting class
+  // This class shows the "View Live CV" link which causes a layout shift
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   const imageReplacements: Array<{
     img: HTMLImageElement;
@@ -163,17 +167,18 @@ export async function generatePDF(element: HTMLElement, fileName: string) {
   }> = [];
 
   try {
-    // Convert all external images to inline data URLs to bypass CORS
+    // First, ensure ALL images are fully loaded and decoded
     const images = Array.from(element.querySelectorAll("img"));
+    
+    // Wait for all images to be ready first
+    await Promise.all(images.map(img => waitForImageReady(img)));
+    
+    // Give extra time for browser to fully render images with complex CSS
+    // This is especially important for images with masks, clip-paths, etc.
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
+    // Convert all external images to inline data URLs to bypass CORS
     for (const img of images) {
-      await waitForImageReady(img);
-
-      // Skip if already a data URL
-      if (img.src.startsWith("data:")) {
-        continue;
-      }
-
       const originalSrcAttr = img.getAttribute("src");
       const originalSrcset = img.getAttribute("srcset");
       const originalSizes = img.getAttribute("sizes");
@@ -182,6 +187,19 @@ export async function generatePDF(element: HTMLElement, fileName: string) {
 
       if (originalLoading !== "eager") {
         img.setAttribute("loading", "eager");
+      }
+
+      // For data URLs, just ensure they're decoded and don't modify them
+      if (img.src.startsWith("data:")) {
+        if ("decode" in img) {
+          try {
+            await img.decode();
+          } catch (error) {
+            console.warn("Failed to decode data URL image", error);
+          }
+        }
+        // Don't add to replacements - we're not changing anything
+        continue;
       }
 
       const absoluteUrl = toAbsoluteUrl(img.currentSrc || img.src);
@@ -230,9 +248,17 @@ export async function generatePDF(element: HTMLElement, fileName: string) {
     }
 
     // Give browser time to update the images
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     backgroundReplacements.push(...(await inlineCssBackgrounds(element)));
+    
+    // Force multiple reflows to ensure rendering
+    void element.offsetHeight;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    void element.offsetWidth;
+    
+    // Extended wait to ensure all styles (especially masks/clips) are fully applied
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const pxW = element.scrollWidth;
     const pxH = element.scrollHeight;
@@ -283,12 +309,18 @@ export async function generatePDF(element: HTMLElement, fileName: string) {
     }
 
     // Rasterize to PNG at 2x resolution for crisp output
+    // Use skipFonts and filter to improve rendering reliability
     const dataUrl = await toPng(element, {
       pixelRatio: 2,
       cacheBust: true,
       backgroundColor: "#ffffff",
       width: pxW,
       height: pxH,
+      skipFonts: false,
+      filter: () => {
+        // Include all nodes
+        return true;
+      },
     });
 
     // Fetch the image data
