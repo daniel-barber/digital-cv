@@ -4,7 +4,7 @@ import profileImage from '../assets/daniel.jpg?inline';
 export const cvData: CVData = {
   profile: {
     name: "Daniel Barber",
-    title: "Bachelor@IBM • Technology Sales • Data & AI",
+    title: "Business & Technology Analyst • Data & AI",
     email: "daniel_barber23@hotmail.com",
     phone: "+41 79 257 55 74",
     location: "Baden AG, Switzerland",
@@ -14,18 +14,18 @@ export const cvData: CVData = {
     profileImage: profileImage,
   },
   summary:
-    "Tech–business professional at IBM with experience across Customer Success and Technology Sales in Data & AI. Strong at translating client problems into solution narratives, facilitating Design Thinking workshops, and aligning sales, product, and delivery stakeholders. Background in Computer Science (Design & Management) with hands-on analytics and prototyping experience; targeting Business Analyst, Junior Consultant, and digital transformation roles ahead of a Master's in Business Information Systems.",
+    "Business & Technology professional at IBM with experience supporting Data & AI initiatives across Swiss enterprise accounts. Skilled in structuring complex discussions into clearly defined use cases and aligning business and technical stakeholders in cross-functional environments. Background in Computer Science with a strong analytical foundation.",
   experience: [
     {
       company: "IBM Schweiz AG",
       position: "Technology Sales – Data & AI (Bachelor@IBM)",
       period: "Jan 2026 - Present",
       description: [
-        "Work with Swiss enterprise account teams on Data & AI opportunities, helping structure client discussions into clear next steps and defined use cases.",
-        "Prepare and refine materials for client meetings and internal alignment, ensuring business and technical perspectives are consistent.",
-        "Enhance portfolio transparency and planning by developing structured tracking mechanisms and opportunity visualisations for account teams.",
-        "Support Design Thinking sessions and AI product demos to translate IBM’s portfolio into concrete Proof-of-Concept ideas.",
-          "Co-organise the IBM watsonx Student Challenge Switzerland, coordinating companies, students, and internal teams.",
+        "Work with Swiss enterprise account teams on Data & AI opportunities, structuring client discussions into defined use cases and clear next steps.",
+        "Prepare and refine materials for client meetings and internal alignment across business and technical stakeholders.",
+        "Improve account-team coordination and opportunity visibility by building dashboards and tracking workflows",
+        "Support Design Thinking workshops and AI demos to translate IBM’s portfolio into concrete Proof-of-Concept ideas.",
+        "Co-organise the IBM watsonx Student Challenge Switzerland, coordinating companies, students, and internal teams.",
       ],
     },
     {
@@ -33,12 +33,10 @@ export const cvData: CVData = {
       position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
       period: "Sep 2024 - Dec 2025",
       description: [
-        "Supported client projects designing and deploying Generative and Agentic AI use cases on IBM watsonx, linking business goals to AI capabilities.",
-        "Assisted with deployment reporting and forecasting to inform planning and client success tracking.",
-        "Developed documentation and stakeholder-ready materials to communicate progress, outcomes, and value realization.",
-        "Coordinated communication across sales, technical, and delivery teams to maintain alignment and smooth execution.",
-        "Co-organized a DACH user group in Munich, connecting enterprise clients with IBM product managers to gather feedback, align on product roadmap topics, and discuss real-world AI adoption challenges.",
-        "Contributed to IBM watsonx challenge initiatives and enablement activities to drive adoption and knowledge sharing.",
+        "Supported enterprise clients in the design and deployment of Generative AI use cases on IBM watsonx, aligning business objectives with technical capabilities.",
+        "Prepared reporting and forecasting materials to support project tracking and stakeholder transparency.",
+        "Coordinated communication across sales, technical, and delivery teams to maintain alignment.",
+        "Co-organised a DACH user group connecting enterprise clients with IBM product teams to exchange feedback and adoption insights.",
       ],
     },
     {
@@ -46,10 +44,10 @@ export const cvData: CVData = {
       position: "Search Engine Advertising Manager",
       period: "Aug 2020 - Aug 2024",
       description: [
-        "Implemented and continuously optimized search and shopping campaigns across Google and Bing, improving visibility and conversion performance.",
-        "Developed data-driven dashboards and analyses in Google Looker Studio to support strategic marketing and budget allocation decisions.",
-        "Planned, monitored, and reported SEA budgets while coordinating with cross-channel display and social media campaigns to ensure message alignment.",
-        "Managed and optimized product feeds across e-commerce sales channels, enhancing data quality and campaign efficiency.",
+        "Owned and optimised search and shopping campaigns across Google and Bing to improve conversion performance.",
+        "Built performance dashboards (Looker Studio) to support budget allocation and decision-making.",
+        "Planned and tracked SEA budgets and aligned messaging with cross-channel teams (display/social).",
+        "Managed product feeds and data quality across e-commerce channels to improve campaign efficiency.",
       ],
     },
     {
@@ -84,24 +82,13 @@ export const cvData: CVData = {
       ],
     },
     {
-      title: "Design Thinking–Based Problem Framing for AI Solutions",
-      context: "Rock with IBM Enablement Series",
-      period: "2025 - 2026",
-      description: [
-        "Applied Design Thinking methods to guide clients from initial pain points to structured, prioritised problem definitions.",
-        "Facilitated workshops to synthesise insights, align stakeholders, and establish a shared understanding of the problem space.",
-        "Enabled translation of clarified problem statements into scoped AI solution approaches and prototypes.",
-      ],
-    },
-    {
-      title: "Empathic Conversational AI for Clinical Trial Support",
+      title: "Empathic Conversational AI – Healthcare Context",
       context: "University Research Project",
       period: "2025",
       description: [
-        "Addressed emotional support and information needs of elderly patients participating in breast cancer clinical trials.",
-        "Designed an empathic conversational agent using human-centred design principles and iterative prototyping.",
-        "Defined evaluation criteria for empathy and usability and analysed trade-offs between technical feasibility, ethics, and user needs.",
-        "Reflected on limitations and risks of AI-mediated support in sensitive healthcare contexts.",
+        "Defined user needs, constraints, and ethical considerations for AI-based patient support in clinical trial settings.",
+        "Designed and prototyped a conversational agent through iterative testing and refinement.",
+        "Evaluated usability and empathy-related criteria and documented risks and limitations for sensitive healthcare use.",
       ],
     },
   ],
@@ -111,7 +98,7 @@ export const cvData: CVData = {
       degree: "Bachelor of Science",
       field: "Computer Science (Design & Management)",
       period: "2022 - 2026",
-      details: "Current Grade Average: 5.3 / 6.0 (Grade A Student, Top 10%)",
+      details: "GPA 5.3 / 6.0 – Top 10% of cohort",
     },
     {
       school: "HKV Aarau",
@@ -128,16 +115,14 @@ export const cvData: CVData = {
   ],
   skills: [
     {
-      category: "Professional & Personal",
+      category: "Business Skills",
       skills: [
-        "Analytical Thinking",
+        "Business Analysis",
+        "Requirements Engineering",
+        "Workshop Facilitation",
         "Stakeholder Management",
-        "Creativity",
-        "Curiosity",
-        "Adaptability",
-        "Structured Thinking",
-        "Problem Solving",
-        "Empathy",
+        "Use-Case Structuring",
+        "Agile / Scrum",
       ],
     },
     {
@@ -145,37 +130,19 @@ export const cvData: CVData = {
       skills: [
         "Python",
         "SQL",
+        "Data Visualization",
+        "Salesforce",
         "Power BI / Looker Studio",
+      ],
+    },
+    {
+      category: "Tools",
+      skills: [
         "Git",
         "Docker",
-        "Data Visualization",
-        "watsonx.ai",
-        "Prompt Engineering",
-      ],
-    },
-    {
-      category: "Software & Prototyping",
-      skills: [
-        "TypeScript",
-        "React",
-        "Next.js",
-        "HTML / CSS",
-        "Tailwind CSS",
-        "Streamlit",
-      ],
-    },
-    {
-      category: "Design & Process",
-      skills: [
-        "Design Thinking",
-        "Requirements Engineering",
-        "Agile / Scrum",
-        "User Research",
-        "Journey Mapping",
-        "UI/UX Design",
         "Figma",
-        "Prototyping",
-        "Workshop Facilitation",
+        "React / TypeScript",
+        "Streamlit",
       ],
     },
   ],
@@ -207,9 +174,8 @@ export const cvData: CVData = {
       role: "LGBTQ+ Switzerland Business Resource Group (BRG) Co-Lead",
       period: "July 2025 - Present",
       description: [
-        "Co-lead the LGBTQ+ Switzerland BRG and run community and inclusion events across IBM Switzerland.",
-        "Work with speakers and stakeholders and handle communications to drive participation and engagement.",
-        "Support allyship and awareness initiatives through practical, employee-facing formats.",
+        "Co-lead the LGBTQ+ Switzerland BRG, planning and running employee events and communications across IBM Switzerland.",
+        "Coordinate speakers and stakeholders and manage logistics to drive participation and engagement.",
       ],
     },
     {
@@ -224,5 +190,3 @@ export const cvData: CVData = {
     },
   ],
 };
-
-// Made with Bob
