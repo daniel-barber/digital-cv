@@ -21,11 +21,11 @@ export const cvData: CVData = {
       position: "Technology Sales – Data & AI (Bachelor@IBM)",
       period: "Jan 2026 - Present",
       description: [
-        "Support technology sellers and account teams in positioning Data & AI solutions, translating client challenges into clear solution narratives and next steps.",
-        "Contribute to opportunity preparation by structuring client inputs, clarifying requirements, and coordinating across sales and technical stakeholders.",
-        "Create and maintain client-facing materials (value propositions, presentations, briefs) for Generative and Agentic AI use cases on IBM watsonx.",
-        "Act as a Design Thinking expert in the 'Rock with IBM' enablement series, facilitating hands-on workshops to capture and refine client problems and translate them into scoped use cases.",
-        "Co-led the IBM watsonx University Challenge Switzerland 2025/26, onboarding ~10 Swiss companies and facilitating use-case definition and scoping to produce actionable AI challenge briefs.",
+        "Work with Swiss enterprise account teams on Data & AI opportunities, helping structure client discussions into clear next steps and defined use cases.",
+        "Prepare and refine materials for client meetings and internal alignment, ensuring business and technical perspectives are consistent.",
+        "Enhance portfolio transparency and planning by developing structured tracking mechanisms and opportunity visualisations for account teams.",
+        "Support Design Thinking sessions and AI product demos to translate IBM’s portfolio into concrete Proof-of-Concept ideas.",
+          "Co-organise the IBM watsonx Student Challenge Switzerland, coordinating companies, students, and internal teams.",
       ],
     },
     {
