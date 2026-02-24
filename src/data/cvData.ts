@@ -71,7 +71,7 @@ export const cvData: CVData = {
   ],
   projects: [
     {
-      title: "Use-Case Definition & PoC Facilitation",
+      title: "Enterprise Use Case Structuring and PoC Development",
       context: "Rock with IBM Partner Enablement Series",
       period: "2026",
       description: [
@@ -81,8 +81,8 @@ export const cvData: CVData = {
       ],
     },
     {
-      title: "Empathic Conversational AI in Healthcare Contexts",
-      context: "University Research Project",
+      title: "Design and Evaluation of AI-Based Patient Support in Clinical Trials",
+      context: "FHNW University Research Project IP5",
       period: "2025",
       description: [
         "Defined user needs, constraints, and ethical considerations for AI-based patient support in clinical trial settings.",
@@ -95,7 +95,7 @@ export const cvData: CVData = {
     {
       school: "FHNW University of Applied Sciences, Brugg-Windisch",
       degree: "Bachelor of Science",
-      field: "Computer Science, iCompetence (Management & Design)",
+      field: "Computer Science, iCompetence (Design & Management)",
       period: "2022 - 2026 (Expected)",
       details: "GPA 5.3 / 6.0 – Top 10% of cohort",
     },
