@@ -14,7 +14,7 @@ export const cvData: CVData = {
     profileImage: profileImage,
   },
   summary:
-      "Business & Technology professional at IBM working on Data & AI initiatives across Swiss enterprise accounts. Skilled in structuring complex discussions into defined use cases and aligning business and technical stakeholders in cross-functional environments.",
+      "Business & Technology professional at IBM working on enterprise technology initiatives across Swiss key accounts, with a focus on Data and AI. Skilled in structuring complex discussions into defined use cases and aligning business and technical stakeholders in cross-functional environments.",
   experience: [
     {
       company: "IBM Schweiz AG",
@@ -95,8 +95,8 @@ export const cvData: CVData = {
     {
       school: "FHNW University of Applied Sciences, Brugg-Windisch",
       degree: "Bachelor of Science",
-      field: "Computer Science (Design & Management)",
-      period: "2022 - 2026",
+      field: "Computer Science, iCompetence (Management & Design)",
+      period: "2022 - 2026 (Expected)",
       details: "GPA 5.3 / 6.0 – Top 10% of cohort",
     },
     {
