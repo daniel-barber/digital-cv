@@ -4,7 +4,7 @@ import profileImage from '../assets/daniel.jpg?inline';
 export const cvData: CVData = {
   profile: {
     name: "Daniel Barber",
-    title: "Business & Technology Analyst • Data & AI",
+    title: "Business & Technology Professional • Data & AI",
     email: "daniel_barber23@hotmail.com",
     phone: "+41 79 257 55 74",
     location: "Baden AG, Switzerland",
@@ -14,28 +14,28 @@ export const cvData: CVData = {
     profileImage: profileImage,
   },
   summary:
-    "Business & Technology professional at IBM with experience supporting Data & AI initiatives across Swiss enterprise accounts. Skilled in structuring complex discussions into clearly defined use cases and aligning business and technical stakeholders in cross-functional environments. Background in Computer Science with a strong analytical foundation.",
+      "Business & Technology professional at IBM working on Data & AI initiatives across Swiss enterprise accounts. Skilled in structuring complex discussions into defined use cases and aligning business and technical stakeholders in cross-functional environments.",
   experience: [
     {
       company: "IBM Schweiz AG",
-      position: "Technology Sales – Data & AI (Bachelor@IBM)",
+      position: "Technology Sales – Enterprise Portfolio (Bachelor@IBM)",
       period: "Jan 2026 - Present",
       description: [
-        "Work with Swiss enterprise account teams on Data & AI opportunities, structuring client discussions into defined use cases and clear next steps.",
+        "Support Swiss enterprise account teams across IBM’s technology portfolio by structuring client discussions into defined use cases and clear next steps.",        "Contribute in particular to Data and AI related opportunities, translating business challenges into structured solution approaches.",
         "Prepare and refine materials for client meetings and internal alignment across business and technical stakeholders.",
-        "Improve account-team coordination and opportunity visibility by building dashboards and tracking workflows",
-        "Support Design Thinking workshops and AI demos to translate IBM’s portfolio into concrete Proof-of-Concept ideas.",
-        "Co-organise the IBM watsonx Student Challenge Switzerland, coordinating companies, students, and internal teams.",
+        "Improve opportunity visibility and coordination across account teams by introducing structured Salesforce reporting and tracking standards.",
+        "Support Design Thinking workshops and software demos to translate IBM’s portfolio into concrete Proof-of-Concept ideas.",
+        "Co-organise the IBM watsonx Student Challenge Switzerland with 150 students and 10 enterprise partners, coordinating stakeholders and logistics.",
       ],
     },
     {
       company: "IBM Schweiz AG",
-      position: "Customer Success Manager – Data & AI (Bachelor@IBM)",
+      position: "Customer Success – Data & AI (Bachelor@IBM)",
       period: "Sep 2024 - Dec 2025",
       description: [
         "Supported enterprise clients in the design and deployment of Generative AI use cases on IBM watsonx, aligning business objectives with technical capabilities.",
-        "Prepared reporting and forecasting materials to support project tracking and stakeholder transparency.",
-        "Coordinated communication across sales, technical, and delivery teams to maintain alignment.",
+        "Prepared reporting and forecasting materials to support project oversight and stakeholder transparency.",
+        "Coordinated communication across sales, technical, and delivery teams during implementation phases to maintain alignment.",
         "Co-organised a DACH user group connecting enterprise clients with IBM product teams to exchange feedback and adoption insights.",
       ],
     },
@@ -71,18 +71,17 @@ export const cvData: CVData = {
   ],
   projects: [
     {
-      title: "Client AI Use-Case Identification & Scoping",
-      context: "IBM Switzerland",
-      period: "2025 - 2026",
+      title: "Use-Case Definition & PoC Facilitation",
+      context: "Rock with IBM Partner Enablement Series",
+      period: "2026",
       description: [
-        "Worked with Swiss enterprise clients to identify and prioritise potential AI use cases aligned with business objectives.",
-        "Structured ambiguous problem statements into clear use cases by defining scope, constraints, and success criteria.",
-        "Assessed feasibility and value dimensions to support go/no-go decisions and downstream solution development.",
-        "Produced structured use-case briefs used as input for solution demos and innovation initiatives.",
+        "Facilitated Design Thinking workshops with IBM business partners to structure client use cases and define solution scope.",
+        "Translated business challenges into defined Proof-of-Concept scenarios aligned with IBM’s Data & AI capabilities.",
+        "Aligned business and technical stakeholders on feasibility, assumptions, and next steps.",
       ],
     },
     {
-      title: "Empathic Conversational AI – Healthcare Context",
+      title: "Empathic Conversational AI in Healthcare Contexts",
       context: "University Research Project",
       period: "2025",
       description: [
@@ -118,8 +117,8 @@ export const cvData: CVData = {
       category: "Business Skills",
       skills: [
         "Business Analysis",
-        "Requirements Engineering",
         "Workshop Facilitation",
+        "Requirements Engineering",
         "Stakeholder Management",
         "Use-Case Structuring",
         "Agile / Scrum",
@@ -130,14 +129,9 @@ export const cvData: CVData = {
       skills: [
         "Python",
         "SQL",
-        "Data Visualization",
         "Salesforce",
+        "Data Visualization",
         "Power BI / Looker Studio",
-      ],
-    },
-    {
-      category: "Tools",
-      skills: [
         "Git",
         "Docker",
         "Figma",

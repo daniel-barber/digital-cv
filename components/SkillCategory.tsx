@@ -1,9 +1,9 @@
 import type { SkillCategoryData } from './types';
 
 const categoryStyles: Record<string, string> = {
-  "Professional & Personal": "bg-gradient-to-r from-blue-500 to-cyan-500",
+  "Business Skills": "bg-gradient-to-r from-blue-500 to-cyan-500",
   "Technical Skills": "bg-gradient-to-r from-purple-500 to-pink-500",
-  "Software & Prototyping": "bg-gradient-to-r from-green-500 to-cyan-500",
+  "Tools": "bg-gradient-to-r from-green-500 to-cyan-500",
   "Design & Process": "bg-gradient-to-r from-orange-500 to-red-500",
 };
 
@@ -12,9 +12,9 @@ export function SkillCategory({ category, skills }: SkillCategoryData) {
 
   return (
     <div className="mb-10 last:mb-0">
-      <div
-        className={`${gradientClass} text-white px-4 py-2 rounded-lg mb-5 inline-block`}
-      >
+        <div
+            className={`${gradientClass} text-white px-4 py-2 rounded-full mb-5 inline-block shadow-sm`}
+        >
         <h3 className="text-white text-sm uppercase tracking-wide">
           {category}
         </h3>
@@ -24,7 +24,6 @@ export function SkillCategory({ category, skills }: SkillCategoryData) {
           <span
             key={index}
             className="skill-pill px-4 py-2.5 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors shadow-sm"
-            style={{ borderRadius: "9999px" }}
           >
             {skill}
           </span>
