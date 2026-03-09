@@ -17,7 +17,7 @@ export const cvData: CVData = {
       "Business & Technology professional at IBM working on enterprise technology initiatives across Swiss key accounts, with a focus on Data and AI. Skilled in structuring complex discussions into defined use cases and aligning business and technical stakeholders in cross-functional environments.",
   experience: [
     {
-      company: "IBM Schweiz AG",
+      company: "IBM Switzerland",
       position: "Technology Sales – Enterprise Portfolio (Bachelor@IBM)",
       period: "Jan 2026 - Present",
       description: [
@@ -29,7 +29,7 @@ export const cvData: CVData = {
       ],
     },
     {
-      company: "IBM Schweiz AG",
+      company: "IBM Switzerland",
       position: "Customer Success – Data & AI (Bachelor@IBM)",
       period: "Sep 2024 - Dec 2025",
       description: [
